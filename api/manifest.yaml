@@ -1,0 +1,64 @@
+id: agreement-lite-module
+title: Agreement Designer Module
+description: >-
+  This module contains the basic infrastructure to manage Service Level
+  Agreements. It offers support to write it on two different syntaxes and convert between OAISLA spec to ISAmodel.
+apiVersion: '1'
+helpUri: /statics/help.html
+models:
+  - id: template
+    extension: at
+    name: Template
+    syntaxes:
+      - id: json
+        readOnly: false
+      - id: yaml
+        readOnly: false
+    operations:
+      - id: convertToOAI
+        name: Convert to OAI
+        description: Convert to OAI model.
+        type: simple
+        config: null
+  - id: agreement
+    extension: ag
+    name: Agreement
+    syntaxes:
+      - id: json
+        readOnly: false
+      - id: yaml
+        readOnly: false
+    operations:
+      - id: convertToOAI
+        name: Convert to OAI
+        description: Convert to OAI model.
+        type: simple
+        config: null
+  - id: oai-template
+    extension: oai.at
+    name: OAI Template
+    syntaxes:
+      - id: json
+        readOnly: false
+      - id: yaml
+        readOnly: false
+    operations:
+      - id: convertToISA
+        name: Convert to ISA
+        description: Convert to ISA model.
+        type: simple
+        config: null
+  - id: oai-agreement
+    extension: oai.ag
+    name: OAI Agreement
+    syntaxes:
+      - id: json
+        readOnly: false
+      - id: yaml
+        readOnly: false
+    operations:
+      - id: convertToISA
+        name: Convert to ISA
+        description: Convert to ISA model.
+        type: simple
+        config: null

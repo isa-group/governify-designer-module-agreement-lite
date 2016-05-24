@@ -1,0 +1,17 @@
+{
+  "name": "agreement-lite-module",
+  "version": "1.0.0",
+  "description": "This module contains the basic infrastructure to manage Service Level Agreements.",
+  "main": "index.js",
+  "keywords": [
+    "agreements"
+  ],
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.15.1",
+    "express": "^4.13.4",
+    "js-yaml": "^3.3.0",
+    "swagger-tools": "0.9.*"
+  }
+}
