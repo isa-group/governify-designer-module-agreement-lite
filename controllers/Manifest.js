@@ -6,12 +6,12 @@ var url = require('url');
 var Manifest = require('./ManifestService');
 
 
-module.exports.apiV1ModelsGET = function apiV1ModelsGET (req, res, next) {
-  Manifest.apiV1ModelsGET(req.swagger.params, res, next);
+module.exports.apiV2ModelsGET = function apiV2ModelsGET (req, res, next) {
+  Manifest.apiV2ModelsGET(req.swagger.params, res, next);
 };
 
-module.exports.apiV1ModelsModelIdGET = function apiV1ModelsModelIdGET (req, res, next) {
-  Manifest.apiV1ModelsModelIdGET(req.swagger.params, res, next);
+module.exports.apiV2ModelsModelIdGET = function apiV2ModelsModelIdGET (req, res, next) {
+  Manifest.apiV2ModelsModelIdGET(req.swagger.params, res, next);
 };
 
 module.exports.manifestGET = function manifestGET (req, res, next) {

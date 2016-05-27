@@ -1,0 +1,84 @@
+'use strict'
+
+var yaml = require('js-yaml');
+var jsonlint = require("jsonlint");
+
+module.exports = {
+	generateOAI: function(res, data){
+		res.json("generateOAI");
+	},
+	check: function(syntax, res, data){
+		switch(syntax){
+			case 'json':
+				try {
+				    jsonlint.parse(data.content);
+				    res.json(new responseModel('OK', null, null, null));
+				} catch (e) {
+				    var row = e.toString().split("line ")[1].split(":")[0];
+				    var annotations = [new annotation('error', row, '1', e.toString())]
+				    res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+				}
+				break;
+			case 'yaml':
+				try {
+				  yaml.safeLoad(data.content, 'utf8');
+				  res.json(new responseModel('OK', null, null, null));
+				} catch (e) {
+				  var annotations = [new annotation('error', e.mark.line + 1, e.mark.column + 1, e.reason)];
+				  res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+				}
+				break;
+		}
+	},
+	translate: function(syntaxSrc, syntaxDes, res, data){
+		
+		switch(syntaxSrc){
+			case 'json':
+				if(syntaxDes != 'yaml'){
+
+					translateCombinationError(res, syntaxDes);
+
+				}else{
+
+					var dataObject = JSON.parse(data.content);
+					res.json(new responseModel('OK', 'The content has been translated', yaml.safeDump(dataObject), []));
+
+				}		
+				break;		
+			case 'yaml':
+				if(syntaxDes != 'json'){
+
+					translateCombinationError(res, syntaxDes);
+
+				}else{
+
+					var dataObject = yaml.safeLoad(data.content);
+					res.json(new responseModel('OK', 'The content has been translated', JSON.stringify(dataObject, null, 2), []));
+
+				}				
+				break;
+			default:
+				res.json( new responseModel('ERROR', "It is not possible to translate from " + syntaxSrc + " to " + syntaxDes, null, []));
+		}
+		
+	}
+}
+
+function translateCombinationError(res, syntaxDes){
+	res.json(new responseModel("ERROR", "It is not possible to translate from yaml to " + syntaxDes, null, []));
+}
+
+function responseModel (status, message, data, annotations){
+  this.status = status;
+  this.message = message;
+  this.data = data;
+  this.annotations = annotations;
+}
+
+function annotation(severity, row, column, text){
+	this.severity = severity;
+	this.row = row;
+	this.column = column;
+	this.text = text;
+}
+

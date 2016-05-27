@@ -12,53 +12,77 @@ models:
     syntaxes:
       - id: json
         readOnly: false
+        editorModeId: ace/mode/json
+        editorModeURI: mode-json.js
+        syntaxCheck: true
       - id: yaml
         readOnly: false
-    operations:
-      - id: convertToOAI
-        name: Convert to OAI
-        description: Convert to OAI model.
-        type: simple
-        config: null
+        editorModeId: ace/mode/yaml
+        editorModeURI: mode-yaml.js
+        syntaxCheck: true
+    operations: []
+#      - id: generateOAI
+#        name: Generate OAI
+#        description: Generate OAI model.
+#        type: simple
+#        config: null
   - id: agreement
     extension: ag
     name: Agreement
     syntaxes:
       - id: json
         readOnly: false
+        editorModeId: ace/mode/json
+        editorModeURI: mode-json.js
+        syntaxCheck: true
       - id: yaml
         readOnly: false
-    operations:
-      - id: convertToOAI
-        name: Convert to OAI
-        description: Convert to OAI model.
-        type: simple
-        config: null
+        editorModeId: ace/mode/yaml
+        editorModeURI: mode-yaml.js
+        syntaxCheck: true
+    operations: []
+#      - id: generateOAI
+#        name: Generate OAI
+#        description: Generate OAI model.
+#        type: simple
+#        config: null
   - id: oai-template
     extension: oai.at
     name: OAI Template
     syntaxes:
       - id: json
         readOnly: false
+        editorModeId: ace/mode/json
+        editorModeURI: mode-json.js
+        syntaxCheck: true
       - id: yaml
         readOnly: false
-    operations:
-      - id: convertToISA
-        name: Convert to ISA
-        description: Convert to ISA model.
-        type: simple
-        config: null
+        editorModeId: ace/mode/yaml
+        editorModeURI: mode-yaml.js
+        syntaxCheck: true
+    operations: []
+#      - id: generateISA
+#        name: Generate ISA
+#        description: Generate ISA model.
+#        type: simple
+#        config: null
   - id: oai-agreement
     extension: oai.ag
     name: OAI Agreement
     syntaxes:
       - id: json
         readOnly: false
+        editorModeId: ace/mode/json
+        editorModeURI: mode-json.js
+        syntaxCheck: true
       - id: yaml
         readOnly: false
-    operations:
-      - id: convertToISA
-        name: Convert to ISA
-        description: Convert to ISA model.
-        type: simple
-        config: null
+        editorModeId: ace/mode/yaml
+        editorModeURI: mode-yaml.js
+        syntaxCheck: true
+    operations: []
+#      - id: generateISA
+#        name: Generate ISA
+#        description: Generate ISA model.
+#        type: simple
+#        config: null

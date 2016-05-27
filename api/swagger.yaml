@@ -13,13 +13,13 @@ produces:
 - "application/json"
 - "text/plain"
 paths:
-  /api/v1/models:
+  /api/v2/models:
     get:
       tags:
       - "Manifest"
       description: "This endpoint returns a list containing all models supported by\
         \ the agreement module.\n"
-      operationId: "apiV1ModelsGET"
+      operationId: "apiV2ModelsGET"
       parameters: []
       responses:
         200:
@@ -30,12 +30,12 @@ paths:
             items:
               $ref: "#/definitions/ModelManifest"
       x-swagger-router-controller: "Manifest"
-  /api/v1/models/{modelId}:
+  /api/v2/models/{modelId}:
     get:
       tags:
       - "Manifest"
       description: "This endpoint returns the model manifest indentified by **modelId**.\n"
-      operationId: "apiV1ModelsModelIdGET"
+      operationId: "apiV2ModelsModelIdGET"
       parameters:
       - name: "modelId"
         in: "path"
@@ -48,13 +48,13 @@ paths:
           schema:
             $ref: "#/definitions/ModelManifest"
       x-swagger-router-controller: "Manifest"
-  /api/v1/models/{modelId}/operations:
+  /api/v2/models/{modelId}/operations:
     get:
       tags:
       - "Operation"
       description: "This endpoint returns a list containing all operations supported\
         \ by this model.\n"
-      operationId: "apiV1ModelsModelIdOperationsGET"
+      operationId: "apiV2ModelsModelIdOperationsGET"
       parameters:
       - name: "modelId"
         in: "path"
@@ -70,12 +70,12 @@ paths:
             items:
               $ref: "#/definitions/Operation"
       x-swagger-router-controller: "Operation"
-  /api/v1/models/{modelId}/operations/{operationId}:
+  /api/v2/models/{modelId}/operations/{operationId}:
     get:
       tags:
       - "Operation"
       description: "This endpoint returns the operation identified by *operationId*.\n"
-      operationId: "apiV1ModelsModelIdOperationsOperationIdGET"
+      operationId: "apiV2ModelsModelIdOperationsOperationIdGET"
       parameters:
       - name: "modelId"
         in: "path"
@@ -96,7 +96,7 @@ paths:
       tags:
       - "Operation"
       description: "This endpoint returns the result of executing this operation.\n"
-      operationId: "apiV1ModelsModelIdOperationsOperationIdPOST"
+      operationId: "apiV2ModelsModelIdOperationsOperationIdPOST"
       parameters:
       - name: "modelId"
         in: "path"
@@ -120,13 +120,13 @@ paths:
           schema:
             $ref: "#/definitions/AppResponse"
       x-swagger-router-controller: "Operation"
-  /api/v1/models/{modelId}/syntaxes:
+  /api/v2/models/{modelId}/syntaxes:
     get:
       tags:
       - "Syntax"
       description: "This endpoint returns a list containing the syntax supported by\
         \ this model.\n"
-      operationId: "apiV1ModelsModelIdSyntaxesGET"
+      operationId: "apiV2ModelsModelIdSyntaxesGET"
       parameters:
       - name: "modelId"
         in: "path"
@@ -142,12 +142,12 @@ paths:
             items:
               $ref: "#/definitions/Syntax"
       x-swagger-router-controller: "Syntax"
-  /api/v1/models/{modelId}/syntaxes/{syntaxId}:
+  /api/v2/models/{modelId}/syntaxes/{syntaxId}:
     get:
       tags:
       - "Syntax"
       description: "This endpoint returns the syntax identified by *syntaxId*."
-      operationId: "apiV1ModelsModelIdSyntaxesSyntaxIdGET"
+      operationId: "apiV2ModelsModelIdSyntaxesSyntaxIdGET"
       parameters:
       - name: "modelId"
         in: "path"
@@ -165,13 +165,13 @@ paths:
           schema:
             $ref: "#/definitions/Syntax"
       x-swagger-router-controller: "Syntax"
-  /api/v1/models/{modelId}/syntaxes/{syntaxId}/check:
+  /api/v2/models/{modelId}/syntaxes/{syntaxId}/check:
     post:
       tags:
       - "Syntax"
       description: "This endpoint returns whether the syntax of this model is valid\
         \ or not.\n"
-      operationId: "apiV1ModelsModelIdSyntaxesSyntaxIdCheckPOST"
+      operationId: "apiV2ModelsModelIdSyntaxesSyntaxIdCheckPOST"
       parameters:
       - name: "modelId"
         in: "path"
@@ -194,12 +194,12 @@ paths:
           schema:
             $ref: "#/definitions/AppResponse"
       x-swagger-router-controller: "Syntax"
-  /api/v1/models/{modelId}/syntaxes/{syntaxId}/mode:
+  /api/v2/models/{modelId}/syntaxes/{syntaxId}/mode:
     get:
       tags:
       - "Syntax"
       description: "This endpoint returns the mode of this syntax.\n"
-      operationId: "apiV1ModelsModelIdSyntaxesSyntaxIdModeGET"
+      operationId: "apiV2ModelsModelIdSyntaxesSyntaxIdModeGET"
       parameters:
       - name: "modelId"
         in: "path"
@@ -217,12 +217,12 @@ paths:
           schema:
             type: "string"
       x-swagger-router-controller: "Syntax"
-  /api/v1/models/{modelId}/syntaxes/{syntaxId}/theme:
+  /api/v2/models/{modelId}/syntaxes/{syntaxId}/theme:
     get:
       tags:
       - "Syntax"
       description: "This endpoint returns the theme of this syntax.\n"
-      operationId: "apiV1ModelsModelIdSyntaxesSyntaxIdThemeGET"
+      operationId: "apiV2ModelsModelIdSyntaxesSyntaxIdThemeGET"
       parameters:
       - name: "modelId"
         in: "path"
@@ -240,55 +240,27 @@ paths:
           schema:
             type: "string"
       x-swagger-router-controller: "Syntax"
-  /api/v1/models/{modelId}/syntaxes/{syntaxId}/translate:
-    get:
-      tags:
-      - "Syntax"
-      description: "This endpoint returns the result of converting from the current\
-        \ syntax to another supported syntax.\n"
-      operationId: "apiV1ModelsModelIdSyntaxesSyntaxIdTranslateGET"
-      parameters:
-      - name: "modelId"
-        in: "path"
-        description: "Can be **template**, **offer** or **agreement**"
-        required: true
-        type: "string"
-      - name: "syntaxId"
-        in: "path"
-        description: "Can be **iagree**, **json** or **yaml**"
-        required: true
-        type: "string"
-      - name: "to"
-        in: "query"
-        description: "Can be **iagree**, **json** or **yaml**"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "The destination syntax signature"
-          schema:
-            $ref: "#/definitions/Syntax"
-      x-swagger-router-controller: "Syntax"
+  /api/v2/models/{modelId}/syntaxes/{srcSyntaxId}/translate/{desSyntaxId}:
     post:
       tags:
       - "Syntax"
       description: "This endpoint returns the result of converting from the current\
         \ syntax to another supported syntax.\n"
-      operationId: "apiV1ModelsModelIdSyntaxesSyntaxIdTranslatePOST"
+      operationId: "apiV2ModelsModelIdSyntaxesSyntaxIdTranslatePOST"
       parameters:
       - name: "modelId"
         in: "path"
         description: "Can be **template**, **offer** or **agreement**"
         required: true
         type: "string"
-      - name: "syntaxId"
+      - name: "srcSyntaxId"
         in: "path"
-        description: "Can be **iagree**, **json** or **yaml**"
+        description: "Source syntax"
         required: true
         type: "string"
-      - name: "to"
-        in: "query"
-        description: "Can be **iagree**, **json** or **yaml**"
+      - name: "desSyntaxId"
+        in: "path"
+        description: "Destination syntax"
         required: true
         type: "string"
       - in: "body"
@@ -302,12 +274,12 @@ paths:
           schema:
             $ref: "#/definitions/AppResponse"
       x-swagger-router-controller: "Syntax"
-  /api/v1/models/{modelId}/tests:
+  /api/v2/models/{modelId}/tests:
     get:
       tags:
       - "Test"
       description: "This endpoint returns the model tests."
-      operationId: "apiV1ModelsModelIdTestsGET"
+      operationId: "apiV2ModelsModelIdTestsGET"
       parameters:
       - name: "modelId"
         in: "path"
@@ -322,12 +294,12 @@ paths:
             items:
               $ref: "#/definitions/Test"
       x-swagger-router-controller: "Test"
-  /api/v1/models/{modelId}/tests/{testId}:
+  /api/v2/models/{modelId}/tests/{testId}:
     get:
       tags:
       - "Test"
       description: "This endpoint returns the model test identified by **testId**."
-      operationId: "apiV1ModelsModelIdTestsTestIdGET"
+      operationId: "apiV2ModelsModelIdTestsTestIdGET"
       parameters:
       - name: "modelId"
         in: "path"
@@ -348,7 +320,7 @@ paths:
       tags:
       - "Test"
       description: "This endpoint returns the result of executing this test.\n"
-      operationId: "apiV1ModelsModelIdTestsTestIdPOST"
+      operationId: "apiV2ModelsModelIdTestsTestIdPOST"
       parameters:
       - name: "modelId"
         in: "path"
@@ -459,6 +431,21 @@ definitions:
         type: "boolean"
         description: "Indicates whether the documents in this syntax are read-only\
           \ or not."
+      syntaxCheck:
+        type: boolean
+        description: Check syntax activated or not.
+      editorModeId:
+        type: string
+        description: Mode of Ace editor
+      editorModeURI:
+        type: string
+        description: URI reference the js mode template
+      editorThemeId:
+        type: string
+        description: Theme of Ace editor
+      editorThemeURI:
+        type: string
+        description: URI reference the js theme template
     description: "Syntax supported by the model."
   Operation:
     type: "object"
@@ -512,13 +499,13 @@ definitions:
         - "WARNING"
         - "ERROR"
         - "FATAL"
-      line:
+      row:
         type: "integer"
         description: "Annotation line."
       column:
         type: "integer"
         description: "Annotation column."
-      message:
+      text:
         type: "string"
         description: "Annotation message."
     description: "Application annotations."
