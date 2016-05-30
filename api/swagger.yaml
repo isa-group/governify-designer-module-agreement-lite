@@ -504,7 +504,7 @@ definitions:
   AppAnnotation:
     type: "object"
     properties:
-      severity:
+      type:
         type: "string"
         description: "Severity of the annotation."
         enum:

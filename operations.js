@@ -23,7 +23,7 @@ module.exports = {
 				    res.json(new responseModel('OK', null, null, null));
 				} catch (e) {
 				    var row = e.toString().split("line ")[1].split(":")[0];
-				    var annotations = [new annotation('error', row, '1', e.toString())]
+				    var annotations = [new annotation('error', parseInt(row)-1 + '', '1', e.toString())]
 				    res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
 				}
 				break;
@@ -32,7 +32,7 @@ module.exports = {
 				  yaml.safeLoad(data.content, 'utf8');
 				  res.json(new responseModel('OK', null, null, null));
 				} catch (e) {
-				  var annotations = [new annotation('error', e.mark.line + 1, e.mark.column + 1, e.reason)];
+				  var annotations = [new annotation('error', e.mark.line - 1, e.mark.column - 1, e.reason)];
 				  res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
 				}
 				break;
@@ -83,8 +83,8 @@ function responseModel (status, message, data, annotations){
   this.annotations = annotations;
 }
 
-function annotation(severity, row, column, text){
-	this.severity = severity;
+function annotation(type, row, column, text){
+	this.type = type;
 	this.row = row;
 	this.column = column;
 	this.text = text;
