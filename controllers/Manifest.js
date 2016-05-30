@@ -21,3 +21,7 @@ module.exports.manifestGET = function manifestGET (req, res, next) {
 module.exports.versionGET = function versionGET (req, res, next) {
   Manifest.versionGET(req.swagger.params, res, next);
 };
+
+module.exports.apiV2GET = function apiV2GET (req, res, next) {
+  Manifest.apiV2GET(req.swagger.params, res, next);
+};

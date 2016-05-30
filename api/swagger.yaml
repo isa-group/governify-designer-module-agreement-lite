@@ -13,6 +13,19 @@ produces:
 - "application/json"
 - "text/plain"
 paths:
+  /api/v2:
+    get:
+      tags:
+      - "Manifest"
+      description: "This endpoint returns the agreement module manifest.\n"
+      operationId: "apiV2GET"
+      parameters: []
+      responses:
+        200:
+          description: "The agreement module manifest in JSON format"
+          schema:
+            $ref: "#/definitions/ModuleManifest"
+      x-swagger-router-controller: "Manifest"
   /api/v2/models:
     get:
       tags:

@@ -64,6 +64,22 @@ exports.manifestGET = function(args, res, next) {
   
 }
 
+exports.apiV2GET = function(args, res, next) {
+  /**
+   * parameters expected in the args:
+  **/
+  
+  if(manifest) {
+    res.json(manifest);
+  }
+  else {
+    res.status(500)
+    res.end('Something fails. It has not been imposible to load manifest.yaml');
+  }
+  
+  
+}
+
 exports.versionGET = function(args, res, next) {
   /**
    * parameters expected in the args:
