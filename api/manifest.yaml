@@ -3,7 +3,7 @@ title: Agreement Designer Module
 description: >-
   This module contains the basic infrastructure to manage Service Level
   Agreements. It offers support to write it on two different syntaxes and convert between OAISLA spec to ISAmodel.
-apiVersion: '1'
+apiVersion: '2'
 helpUri: /statics/help.html
 models:
   - id: template
@@ -47,7 +47,7 @@ models:
 #        type: simple
 #        config: null
   - id: oai-template
-    extension: oai.at
+    extension: oai-at
     name: OAI Template
     syntaxes:
       - id: json
@@ -60,14 +60,15 @@ models:
         editorModeId: ace/mode/yaml
         editorModeURI: mode-yaml.js
         syntaxCheck: true
-    operations: []
-#      - id: generateISA
-#        name: Generate ISA
-#        description: Generate ISA model.
-#        type: simple
-#        config: null
+    operations:
+      - id: generateGovernify
+        name: Generate Governify 
+        description: Generate Governify model.
+        type: createFile
+        config:
+          ext: at
   - id: oai-agreement
-    extension: oai.ag
+    extension: oai-ag
     name: OAI Agreement
     syntaxes:
       - id: json
@@ -80,9 +81,10 @@ models:
         editorModeId: ace/mode/yaml
         editorModeURI: mode-yaml.js
         syntaxCheck: true
-    operations: []
-#      - id: generateISA
-#        name: Generate ISA
-#        description: Generate ISA model.
-#        type: simple
-#        config: null
+    operations:
+      - id: generateGovernify
+        name: Generate Governify
+        description: Generate Governify model.
+        type: createFile
+        config:
+          ext: ag
