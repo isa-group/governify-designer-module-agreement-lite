@@ -2,10 +2,18 @@
 
 var yaml = require('js-yaml');
 var jsonlint = require("jsonlint");
+var isaToOai = require('./isaToOAI');
 
 module.exports = {
-	generateOAI: function(res, data){
-		res.json("generateOAI");
+	generateGovernify: function(res, data){
+		isaToOai.convertStringOAI2Governify(data[0].content, (dataResponse) => {
+
+			console.log('::::::::::::::::::: GOVERNIFY MODEL :::::::::::::::::::');
+			console.log(dataResponse);
+			res.send(dataResponse);
+		}, (err) => {
+			res.send(err.toString());
+		});
 	},
 	check: function(syntax, res, data){
 		switch(syntax){
