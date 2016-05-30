@@ -10,15 +10,15 @@ models:
     extension: at
     name: Template
     syntaxes:
-      - id: json
-        readOnly: false
-        editorModeId: ace/mode/json
-        editorModeURI: mode-json.js
-        syntaxCheck: true
       - id: yaml
         readOnly: false
         editorModeId: ace/mode/yaml
         editorModeURI: mode-yaml.js
+        syntaxCheck: true
+      - id: json
+        readOnly: false
+        editorModeId: ace/mode/json
+        editorModeURI: mode-json.js
         syntaxCheck: true
     operations: []
 #      - id: generateOAI
@@ -30,15 +30,15 @@ models:
     extension: ag
     name: Agreement
     syntaxes:
-      - id: json
-        readOnly: false
-        editorModeId: ace/mode/json
-        editorModeURI: mode-json.js
-        syntaxCheck: true
       - id: yaml
         readOnly: false
         editorModeId: ace/mode/yaml
         editorModeURI: mode-yaml.js
+        syntaxCheck: true
+      - id: json
+        readOnly: false
+        editorModeId: ace/mode/json
+        editorModeURI: mode-json.js
         syntaxCheck: true
     operations: []
 #      - id: generateOAI
@@ -50,15 +50,15 @@ models:
     extension: oai-at
     name: OAI Template
     syntaxes:
-      - id: json
-        readOnly: false
-        editorModeId: ace/mode/json
-        editorModeURI: mode-json.js
-        syntaxCheck: true
       - id: yaml
         readOnly: false
         editorModeId: ace/mode/yaml
         editorModeURI: mode-yaml.js
+        syntaxCheck: true
+      - id: json
+        readOnly: false
+        editorModeId: ace/mode/json
+        editorModeURI: mode-json.js
         syntaxCheck: true
     operations:
       - id: generateGovernify
@@ -71,15 +71,15 @@ models:
     extension: oai-ag
     name: OAI Agreement
     syntaxes:
-      - id: json
-        readOnly: false
-        editorModeId: ace/mode/json
-        editorModeURI: mode-json.js
-        syntaxCheck: true
       - id: yaml
         readOnly: false
         editorModeId: ace/mode/yaml
         editorModeURI: mode-yaml.js
+        syntaxCheck: true
+      - id: json
+        readOnly: false
+        editorModeId: ace/mode/json
+        editorModeURI: mode-json.js
         syntaxCheck: true
     operations:
       - id: generateGovernify
