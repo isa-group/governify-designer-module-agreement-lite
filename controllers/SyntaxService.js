@@ -173,11 +173,8 @@ exports.apiV2ModelsModelIdSyntaxesSyntaxIdThemeGET = function(args, res, next) {
             var syntax = args.syntaxId.value;
             for(var s in manifest.models[m].syntaxes){
               if(manifest.models[m].syntaxes[s].id ==  syntax){
-                if(manifest.models[m].syntaxes[s].editorThemeURI){
-                  res.json(manifest.models[m].syntaxes[s].editorThemeURI);
-                }else{
-                  res.json(null); 
-                }
+                  res.setHeader('content-type', 'text/plain;chartset=utf-8');
+                  res.send(fs.readFileSync('modes/' + syntax + '/' + manifest.models[m].syntaxes[s].editorThemeURI));
               }
             }  
             res.status(404);

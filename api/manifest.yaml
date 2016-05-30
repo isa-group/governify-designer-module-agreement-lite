@@ -14,11 +14,15 @@ models:
         readOnly: false
         editorModeId: ace/mode/yaml
         editorModeURI: mode-yaml.js
+        editorThemeId: ace/theme/xcode
+        editorThemeURI: theme-yaml.js
         syntaxCheck: true
       - id: json
         readOnly: false
         editorModeId: ace/mode/json
         editorModeURI: mode-json.js
+        editorThemeId: ace/theme/eclipse
+        editorThemeURI: theme-json.js
         syntaxCheck: true
     operations: []
 #      - id: generateOAI
@@ -34,11 +38,15 @@ models:
         readOnly: false
         editorModeId: ace/mode/yaml
         editorModeURI: mode-yaml.js
+        editorThemeId: ace/theme/xcode
+        editorThemeURI: theme-yaml.js
         syntaxCheck: true
       - id: json
         readOnly: false
         editorModeId: ace/mode/json
         editorModeURI: mode-json.js
+        editorThemeId: ace/theme/eclipse
+        editorThemeURI: theme-json.js
         syntaxCheck: true
     operations: []
 #      - id: generateOAI
@@ -54,11 +62,15 @@ models:
         readOnly: false
         editorModeId: ace/mode/yaml
         editorModeURI: mode-yaml.js
+        editorThemeId: ace/theme/xcode
+        editorThemeURI: theme-yaml.js
         syntaxCheck: true
       - id: json
         readOnly: false
         editorModeId: ace/mode/json
         editorModeURI: mode-json.js
+        editorThemeId: ace/theme/eclipse
+        editorThemeURI: theme-json.js
         syntaxCheck: true
     operations:
       - id: generateGovernify
@@ -75,11 +87,15 @@ models:
         readOnly: false
         editorModeId: ace/mode/yaml
         editorModeURI: mode-yaml.js
+        editorThemeId: ace/theme/xcode
+        editorThemeURI: theme-yaml.js
         syntaxCheck: true
       - id: json
         readOnly: false
         editorModeId: ace/mode/json
         editorModeURI: mode-json.js
+        editorThemeId: ace/theme/eclipse
+        editorThemeURI: theme-json.js
         syntaxCheck: true
     operations:
       - id: generateGovernify
