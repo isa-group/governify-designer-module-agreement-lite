@@ -8,7 +8,7 @@ module.exports = {
 	generateGovernify: function(res, data){
 		isaToOai.convertStringOAI2Governify(data[0].content, (dataResponse) => {
 
-			res.send(new responseModel('OK', null, dataResponse, null));
+			res.send(new responseModel('OK', "The document has been generate correctly", dataResponse, null));
 
 		}, (err) => {
 
@@ -40,7 +40,7 @@ module.exports = {
 		}
 	},
 	translate: function(syntaxSrc, syntaxDes, res, data){
-		
+
 		switch(syntaxSrc){
 			case 'json':
 				if(syntaxDes != 'yaml'){
@@ -52,8 +52,8 @@ module.exports = {
 					var dataObject = JSON.parse(data.content);
 					res.json(new responseModel('OK', 'The content has been translated', yaml.safeDump(dataObject), []));
 
-				}		
-				break;		
+				}
+				break;
 			case 'yaml':
 				if(syntaxDes != 'json'){
 
@@ -64,12 +64,12 @@ module.exports = {
 					var dataObject = yaml.safeLoad(data.content);
 					res.json(new responseModel('OK', 'The content has been translated', JSON.stringify(dataObject, null, 2), []));
 
-				}				
+				}
 				break;
 			default:
 				res.json( new responseModel('ERROR', "It is not possible to translate from " + syntaxSrc + " to " + syntaxDes, null, []));
 		}
-		
+
 	}
 }
 
@@ -90,4 +90,3 @@ function annotation(type, row, column, text){
 	this.column = column;
 	this.text = text;
 }
-
