@@ -84,11 +84,7 @@ function convertOAI2Governify (oaiModel, successCb, errorCb){
 				)
 			),
 			new agreementTerms(
-				new pricing(
-					oaiModel.pricing.cost ? oaiModel.pricing.cost : 0 ,
-					oaiModel.pricing.currency ? oaiModel.pricing.currency : 'EUR', 
-					oaiModel.pricing.billing ? oaiModel.pricing.billing : 'monthly'
-				) ,
+				new pricing() ,
 				{}, //configurations
 				{}, //metrics
 				{}, //quotas
@@ -98,53 +94,186 @@ function convertOAI2Governify (oaiModel, successCb, errorCb){
 			{} //creationConstraints
 		);
 
+	//processing default pricing
+
+	if(oaiModel.pricing){
+		governifyModel.agreementTerms.pricing.of[oaiModel.pricing.plan ? oaiModel.pricing.plan : '*'] = new pricingObject(
+				oaiModel.pricing.cost,
+				oaiModel.pricing.currency,
+				new billingObject (oaiModel.pricing.billing, oaiModel.context.validity ? oaiModel.context.validity.effectiveDate : null)
+			);
+	}
 	//processing default configurations
 	
 	if(oaiModel.availability){
-		var values = []; 
-		var availability = {};
-		availability[oaiModel.pricing.plan ? oaiModel.pricing.plan : '*'] = {of: oaiModel.availability}
-		values.push(availability);
+
+		var values = {}; 
+		values[oaiModel.pricing.plan ? oaiModel.pricing.plan : '*'] = {of: oaiModel.availability};
 		governifyModel.agreementTerms.configurations['availability'] = new configuration(values);
+
 	}
 	for(var conf in oaiModel.configuration){
-		var vals = [];
-		var config = {};
-		config[oaiModel.pricing.plan ? oaiModel.pricing.plan : '*'] = {of: oaiModel.configuration[conf] };
-		vals.push(config);
-		governifyModel.agreementTerms.configurations[conf] = new configuration(vals);
+		var values = {};
+		values[oaiModel.pricing.plan ? oaiModel.pricing.plan : '*'] = {of: oaiModel.configuration[conf] };
+		governifyModel.agreementTerms.configurations[conf] = new configuration(values);
 	}
 
 	//Processing default quotas
 
 	if(oaiModel.quotas){
-		for (var path in oaiModel.quotas){
-			for(var operation in oaiModel.quotas[path]){
-				for(var m in oaiModel.quotas[path][operation]){
+		processQuotas(oaiModel.quotas, plan, governifyModel);
+	}
 
-					if(!governifyModel.agreementTerms.metrics[m])
-						governifyModel.agreementTerms.metrics[m] = new metric(m);
+	//proccessing default rates
 
-					if(!governifyModel.agreementTerms.quotas['quota_' + m])
-						governifyModel.agreementTerms.quotas['quota_' + m] = new quota(m);
+	if(oaiModel.rates){
+		processRates(oaiModel.rates, plan, governifyModel);
+	}
 
-					for(var li in oaiModel.quotas[path][operation][m]){
-						var exist = false;
-						for(var of in governifyModel.agreementTerms.quotas['quota_' + m].of ){
-							if(governifyModel.agreementTerms.quotas['quota_' + m].of[of]['*,'+path+','+operation+','+ oaiModel.quotas[path][operation][m][li].scope])
-								exist = true;
-						}
-						if(exist){
-							governifyModel.agreementTerms.quotas['quota_' + m].of.push();	
-						}
-							
-					}		
+	//processig default guarantees
+
+	if(oaiModel.guarantees){
+		processGuarantees(oaiModel.guarantees, plan, governifyModel);
+	}
+
+	//processing plans
+
+	if(oaiModel.plans){
+
+		for( var plan in oaiModel.plans){
+
+			if(oaiModel.plans[plan].availability){
+				governifyModel.agreementTerms.configurations['availability'].values[plan] = {of: oaiModel.plans[plan].availability};
+			}
+			if(oaiModel.plans[plan].configuration){
+				for(var conf in oaiModel.plans[plan].configuration){
+					if(governifyModel.agreementTerms.configurations[conf]){
+						governifyModel.agreementTerms.configurations[conf].values[plan] = {of: oaiModel.plans[plan].configuration[conf] };
+					}else{
+						var values = {};
+						values[plan] = {of: oaiModel.plans[plan].configuration[conf] };
+						governifyModel.agreementTerms.configurations[conf] = new configuration(values);
+					}					
 				}
 			}
+
+			if(oaiModel.plans[plan].pricing){
+				governifyModel.agreementTerms.pricing.of[plan] = new pricingObject(
+					oaiModel.plans[plan].pricing.cost ? oaiModel.plans[plan].pricing.cost : oaiModel.pricing.cost,
+					oaiModel.plans[plan].pricing.currency ? oaiModel.plans[plan].pricing. currency : oaiModel.pricing.currency,
+					new billingObject (
+						oaiModel.plans[plan].pricing.billing ? oaiModel.plans[plan].pricing.billing : oaiModel.pricing.billing,
+						oaiModel.context.validity ? oaiModel.context.validity.effectiveDate : null)
+				);
+			}
+
+			//processing plan quotas:
+			processQuotas(oaiModel.plans[plan].quotas, plan, governifyModel);
+
+			//processing plan rates:
+			processRates(oaiModel.plans[plan].rates, plan, governifyModel);
+
+			//processing plan guarantees
+			processGuarantees(oaiModel.plans[plan].guarantees, plan, governifyModel);
+
+			governifyModel.creationConstraints["cc_" + plan] = new creationConstraints(
+					new constraint(plan)
+				)
 		}
 	}
 
 	successCb( yaml.safeDump(governifyModel) );
+}
+
+
+function processQuotas(quotas, plan, governifyModel){
+
+	for (var path in quotas){
+		for(var operation in quotas[path]){
+			for(var m in quotas[path][operation]){
+
+				if(!governifyModel.agreementTerms.metrics[m])
+					governifyModel.agreementTerms.metrics[m] = new metric(m);
+
+				if(!governifyModel.agreementTerms.quotas['quotas_' + m])
+					governifyModel.agreementTerms.quotas['quotas_' + m] = new quota(m);
+
+				for(var li in quotas[path][operation][m]){
+					var name = (plan ? plan : '*') + ',' + path + ',' + operation + ',' + (quotas[path][operation][m][li].scope ? quotas[path][operation][m][li].scope : 'account');
+					if(!governifyModel.agreementTerms.quotas['quotas_' + m].of[name]){
+						governifyModel.agreementTerms.quotas['quotas_' + m].of[name] = {
+							limits: [
+								new limit(quotas[path][operation][m][li].max, quotas[path][operation][m][li].period ? quotas[path][operation][m][li].period : null )
+							]
+						}
+					}else{
+						governifyModel.agreementTerms.quotas['quotas_' + m].of[name].limits.push(
+								new limit(quotas[path][operation][m][li].max, quotas[path][operation][m][li].period ? quotas[path][operation][m][li].period : null )
+							);
+					}
+
+				}
+			}
+		}
+	}
+}
+
+function processRates(rates, plan, governifyModel){
+
+	for (var path in rates){
+		for(var operation in rates[path]){
+			for(var m in rates[path][operation]){
+
+				if(!governifyModel.agreementTerms.metrics[m])
+					governifyModel.agreementTerms.metrics[m] = new metric(m);
+
+				if(!governifyModel.agreementTerms.rates['rates_' + m])
+					governifyModel.agreementTerms.rates['rates_' + m] = new rate(m);
+
+				for(var li in rates[path][operation][m]){
+					var name =(plan ? plan : '*') + ',' + path + ',' + operation + ',' + (rates[path][operation][m][li].scope ? rates[path][operation][m][li].scope : 'account');
+					if(!governifyModel.agreementTerms.rates['rates_' + m].of[name]){
+						governifyModel.agreementTerms.rates['rates_' + m].of[name] = {
+							limits: [
+								new limit(rates[path][operation][m][li].max, rates[path][operation][m][li].period ? rates[path][operation][m][li].period : null )
+							]
+						}
+					}else{
+						governifyModel.agreementTerms.rates['rates_' + m].of[name].limits.push(
+								new limit(rates[path][operation][m][li].max, rates[path][operation][m][li].period ? rates[path][operation][m][li].period : null )
+							);
+					}
+
+				}
+			}
+		}
+	}
+}
+
+function processGuarantees(guarantees, plan, governifyModel){
+	for (var path in guarantees){
+		for(var operation in guarantees[path]){
+			
+			for(var o in guarantees[path][operation] ){
+
+				var m = guarantees[path][operation][o].objective.split(' ')[0];
+
+				if(!governifyModel.agreementTerms.metrics[m])
+					governifyModel.agreementTerms.metrics[m] = new metric(m);
+
+				if(!governifyModel.agreementTerms.guarantees['guarantees_' + m])
+					governifyModel.agreementTerms.guarantees['guarantees_' + m] = new guarantee();
+
+				var name = (plan ? plan : '*') + ',' + path + ',' + operation + ',' + (guarantees[path][operation][o].scope ? guarantees[path][operation][o].scope : 'account');
+
+				governifyModel.agreementTerms.guarantees['guarantees_' + m].of[name] = new objective(
+						guarantees[path][operation][o].objective,
+						guarantees[path][operation][o].window,
+						guarantees[path][operation][o].period
+					);					
+			}
+		}
+	}
 }
 
 function convertGovernify2OAI(governifyModel, successCb, errorCb){
@@ -222,10 +351,15 @@ function configuration (values){
 	this.values = values;
 }
 
-function pricing(cost, currency, billing){
+function pricing(){
+	this.scope = [{ '$ref' : "#/context/definitions/scopes/offering/plan" }];
+	this.of = {};
+}
+
+function pricingObject(cost, currency, billing){
 	this.cost = cost;
 	this.currency = currency;
-	this.billing = new billingObject(billing);
+	this.billing = billing;
 }
 
 function billingObject(period, init){
@@ -244,8 +378,46 @@ function quota(metric){
 
 	this.over = {$ref: "#/agreementTerms/metrics/" + metric};
 
-	this.of = [];
+	this.of = {};
 
+}
+
+function rate(metric){
+	this.scope = [
+		{$ref: "#/context/definitions/scopes/offering/plan" },
+		{$ref: "#/context/definitions/scopes/api/resource"},
+		{$ref: "#/context/definitions/scopes/api/operation"},
+		{$ref: "#/context/definitions/scopes/oai/level"}
+	];
+
+	this.over = {$ref: "#/agreementTerms/metrics/" + metric};
+
+	this.of = {};
+}
+
+function guarantee (){
+	this.scope = [
+		{$ref: "#/context/definitions/scopes/offering/plan" },
+		{$ref: "#/context/definitions/scopes/api/resource"},
+		{$ref: "#/context/definitions/scopes/api/operation"},
+		{$ref: "#/context/definitions/scopes/oai/level"}
+	];
+
+	this.of = {};
+}
+
+function objective (objective, window, period ){
+	this.objective = objective;
+	this.window = {
+		type: window,
+		period: period
+	}
+}
+
+function limit(max, period){
+	this.max = max;
+	if(period)
+		this.period = period;
 }
 
 function metric(metric){
@@ -258,10 +430,13 @@ function metric(metric){
 	]
 }
 
-function creationConstraints(){
-
+function creationConstraints(constraint, qualifyCondition){
+	this.constraint = constraint;
+	if(qualifyCondition)
+		this.qualifyCondition = qualifyCondition;
 }
 
-function constraint(over, of){
-
+function constraint(of){
+	this.over = { $ref: "#/context/definitions/scopes/offering/plan" };
+	this.of = of;
 }

@@ -10,7 +10,8 @@ module.exports = {
 
 			console.log('::::::::::::::::::: GOVERNIFY MODEL :::::::::::::::::::');
 			console.log(dataResponse);
-			res.send(dataResponse);
+			res.send(new responseModel('OK', null, dataResponse, null));
+			
 		}, (err) => {
 			res.send(err.toString());
 		});
