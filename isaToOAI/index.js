@@ -68,8 +68,7 @@ module.exports.convertStringGovernify2OAI = function(governifyString, successCb,
 }
 
 function convertOAI2Governify (oaiModel, successCb, errorCb){
-	console.log('::::::::::::::::::: OAI MODEL :::::::::::::::::::');
-	console.log(oaiModel);
+	//add errorCb
 	var governifyModel = new governify(
 			oaiModel.context.id,
 			oaiModel.context.sla,
@@ -199,7 +198,8 @@ function processQuotas(quotas, plan, governifyModel){
 					governifyModel.agreementTerms.quotas['quotas_' + m] = new quota(m);
 
 				for(var li in quotas[path][operation][m]){
-					var name = (plan ? plan : '*') + ',' + path + ',' + operation + ',' + (quotas[path][operation][m][li].scope ? quotas[path][operation][m][li].scope : 'account');
+					var name = createScope (plan, path, operation, quotas[path][operation][m][li].scope);
+
 					if(!governifyModel.agreementTerms.quotas['quotas_' + m].of[name]){
 						governifyModel.agreementTerms.quotas['quotas_' + m].of[name] = {
 							limits: [
@@ -231,7 +231,8 @@ function processRates(rates, plan, governifyModel){
 					governifyModel.agreementTerms.rates['rates_' + m] = new rate(m);
 
 				for(var li in rates[path][operation][m]){
-					var name =(plan ? plan : '*') + ',' + path + ',' + operation + ',' + (rates[path][operation][m][li].scope ? rates[path][operation][m][li].scope : 'account');
+					var name = createScope (plan, path, operation, rates[path][operation][m][li].scope);
+
 					if(!governifyModel.agreementTerms.rates['rates_' + m].of[name]){
 						governifyModel.agreementTerms.rates['rates_' + m].of[name] = {
 							limits: [
@@ -264,7 +265,7 @@ function processGuarantees(guarantees, plan, governifyModel){
 				if(!governifyModel.agreementTerms.guarantees['guarantees_' + m])
 					governifyModel.agreementTerms.guarantees['guarantees_' + m] = new guarantee();
 
-				var name = (plan ? plan : '*') + ',' + path + ',' + operation + ',' + (guarantees[path][operation][o].scope ? guarantees[path][operation][o].scope : 'account');
+				var name = createScope (plan, path, operation, guarantees[path][operation][o].scope);
 
 				governifyModel.agreementTerms.guarantees['guarantees_' + m].of[name] = new objective(
 						guarantees[path][operation][o].objective,
@@ -278,6 +279,13 @@ function processGuarantees(guarantees, plan, governifyModel){
 
 function convertGovernify2OAI(governifyModel, successCb, errorCb){
 	successCb("convertGovernify2OAI");
+}
+
+function createScope (plan, path, operation, level){
+	return    (plan ? plan : '*') + ',' 
+			+ (path == 'global' ? '*' : path) + ','
+		    + (operation == 'global' ? '*' : operation) + ','
+		    + (level ? level : 'account');
 }
 
 /** GOVERNIFY MODEL **/

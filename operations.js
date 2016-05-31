@@ -8,12 +8,12 @@ module.exports = {
 	generateGovernify: function(res, data){
 		isaToOai.convertStringOAI2Governify(data[0].content, (dataResponse) => {
 
-			console.log('::::::::::::::::::: GOVERNIFY MODEL :::::::::::::::::::');
-			console.log(dataResponse);
 			res.send(new responseModel('OK', null, dataResponse, null));
-			
+
 		}, (err) => {
-			res.send(err.toString());
+
+			res.send(new responseModel('OK_PROBLEMS', err.toString(), null, [new annotation('error', err.mark.line, err.mark.column, err.reason)]));
+
 		});
 	},
 	check: function(syntax, res, data){
@@ -33,7 +33,7 @@ module.exports = {
 				  yaml.safeLoad(data.content, 'utf8');
 				  res.json(new responseModel('OK', null, null, null));
 				} catch (e) {
-				  var annotations = [new annotation('error', e.mark.line - 1, e.mark.column - 1, e.reason)];
+				  var annotations = [new annotation('error', e.mark.line, e.mark.column, e.reason)];
 				  res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
 				}
 				break;
