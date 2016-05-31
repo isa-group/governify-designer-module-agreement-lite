@@ -8,11 +8,11 @@ module.exports = {
 	generateGovernify: function(res, data){
 		isaToOai.convertStringOAI2Governify(data[0].content, (dataResponse) => {
 
-			res.send(new responseModel('OK', "The document has been generate correctly", dataResponse, null));
+			res.send(new responseModel('OK', "The document has been generated successfully", dataResponse, null));
 
 		}, (err) => {
 
-			res.send(new responseModel('OK_PROBLEMS', err.toString(), null, [new annotation('error', err.mark.line, err.mark.column, err.reason)]));
+			res.send(new responseModel('OK_PROBLEMS', err.toString(), 'Has ocurred an error with generation of document: ' + err.reason, [new annotation('error', err.mark.line, err.mark.column, err.reason)]));
 
 		});
 	},
