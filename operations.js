@@ -12,7 +12,7 @@ module.exports = {
 
 		}, (err) => {
 
-			res.send(new responseModel('OK_PROBLEMS', err.toString(), 'Has ocurred an error with generation of document: ' + err.reason, [new annotation('error', err.mark.line, err.mark.column, err.reason)]));
+			res.send(new responseModel('OK_PROBLEMS', 'Has ocurred an error with generation of document: ' + err.toString(), null, [new annotation('error', err.mark.line, err.mark.column, err.reason)]));
 
 		});
 	},
