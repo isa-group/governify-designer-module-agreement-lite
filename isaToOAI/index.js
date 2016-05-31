@@ -296,7 +296,8 @@ function governify(id, version, type, context, agreementTerms, creationConstrain
 	this.type = type;
 	this.context = context;
 	this.agreementTerms = agreementTerms;
-	this.creationConstraints = creationConstraints;
+	if(creationConstraints)
+		this.creationConstraints = creationConstraints;
 }
 
 function context(provider, consumer, validity, infrastructure, definitions){
