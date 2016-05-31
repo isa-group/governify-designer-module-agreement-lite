@@ -1,7 +1,7 @@
 /*!
  * Copyright(c) 2016 governify Research Group
  * ISC Licensed
- * 
+ *
  * @author Daniel Artega <darteaga@us.es>
  */
 
@@ -25,7 +25,7 @@ module.exports.convertFileOAI2Governify = function(oaiUri, successCb, errorCb){
 		}else{
 			try{
 				var oaiModel =  yaml.safeLoad(data, 'utf8');
-				convertOAI2Governify(oaiModel, successCb, errorCb);	
+				convertOAI2Governify(oaiModel, successCb, errorCb);
 			}catch(e){
 				errorCb(e);
 			}
@@ -90,7 +90,7 @@ function convertOAI2Governify (oaiModel, successCb, errorCb){
 				{}, //rates
 				{} //guarantees
 			),
-			{} //creationConstraints
+			oaiModel.context.type == 'plans' ? {} : null //creationConstraints
 		);
 
 	//processing default pricing
@@ -103,10 +103,10 @@ function convertOAI2Governify (oaiModel, successCb, errorCb){
 			);
 	}
 	//processing default configurations
-	
+
 	if(oaiModel.availability){
 
-		var values = {}; 
+		var values = {};
 		values[oaiModel.pricing.plan ? oaiModel.pricing.plan : '*'] = {of: oaiModel.availability};
 		governifyModel.agreementTerms.configurations['availability'] = new configuration(values);
 
@@ -152,7 +152,7 @@ function convertOAI2Governify (oaiModel, successCb, errorCb){
 						var values = {};
 						values[plan] = {of: oaiModel.plans[plan].configuration[conf] };
 						governifyModel.agreementTerms.configurations[conf] = new configuration(values);
-					}					
+					}
 				}
 			}
 
@@ -254,7 +254,7 @@ function processRates(rates, plan, governifyModel){
 function processGuarantees(guarantees, plan, governifyModel){
 	for (var path in guarantees){
 		for(var operation in guarantees[path]){
-			
+
 			for(var o in guarantees[path][operation] ){
 
 				var m = guarantees[path][operation][o].objective.split(' ')[0];
@@ -271,7 +271,7 @@ function processGuarantees(guarantees, plan, governifyModel){
 						guarantees[path][operation][o].objective,
 						guarantees[path][operation][o].window,
 						guarantees[path][operation][o].period
-					);					
+					);
 			}
 		}
 	}
@@ -282,7 +282,7 @@ function convertGovernify2OAI(governifyModel, successCb, errorCb){
 }
 
 function createScope (plan, path, operation, level){
-	return    (plan ? plan : '*') + ',' 
+	return    (plan ? plan : '*') + ','
 			+ (path == 'global' ? '*' : path) + ','
 		    + (operation == 'global' ? '*' : operation) + ','
 		    + (level ? level : 'account');
