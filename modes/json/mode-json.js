@@ -646,6 +646,7 @@ oop.inherits(Mode, TextMode);
     };
 
     this.createWorker = function(session) {
+        /*
         var worker = new WorkerClient(["ace"], "ace/mode/json_worker", "JsonWorker");
         worker.attachToDocument(session.getDocument());
 
@@ -658,6 +659,7 @@ oop.inherits(Mode, TextMode);
         });
 
         return worker;
+        */
     };
 
 

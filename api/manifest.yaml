@@ -21,8 +21,8 @@ models:
         readOnly: false
         editorModeId: ace/mode/json
         editorModeURI: mode-json.js
-        editorThemeId: ace/theme/yaml
-        editorThemeURI: theme-yaml.js
+        editorThemeId: ace/theme/json
+        editorThemeURI: theme-json.js
         syntaxCheck: true
     operations: []
 #      - id: generateOAI
@@ -45,8 +45,8 @@ models:
         readOnly: false
         editorModeId: ace/mode/json
         editorModeURI: mode-json.js
-        editorThemeId: ace/theme/yaml
-        editorThemeURI: theme-yaml.js
+        editorThemeId: ace/theme/json
+        editorThemeURI: theme-json.js
         syntaxCheck: true
     operations: []
 #      - id: generateOAI
@@ -69,8 +69,8 @@ models:
         readOnly: false
         editorModeId: ace/mode/json
         editorModeURI: mode-json.js
-        editorThemeId: ace/theme/yaml
-        editorThemeURI: theme-yaml.js
+        editorThemeId: ace/theme/json
+        editorThemeURI: theme-json.js
         syntaxCheck: true
     operations:
       - id: generateGovernify
@@ -94,8 +94,8 @@ models:
         readOnly: false
         editorModeId: ace/mode/json
         editorModeURI: mode-json.js
-        editorThemeId: ace/theme/yaml
-        editorThemeURI: theme-yaml.js
+        editorThemeId: ace/theme/json
+        editorThemeURI: theme-json.js
         syntaxCheck: true
     operations:
       - id: generateGovernify
