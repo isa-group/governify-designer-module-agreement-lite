@@ -12,6 +12,7 @@
     "body-parser": "^1.15.1",
     "cors": "^2.7.1",
     "express": "^4.13.4",
+    "governify-agreement-manager": "0.0.1",
     "js-yaml": "^3.3.0",
     "jsonlint": "^1.6.2",
     "swagger-tools": "0.9.*"

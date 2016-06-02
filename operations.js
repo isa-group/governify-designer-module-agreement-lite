@@ -2,11 +2,12 @@
 
 var yaml = require('js-yaml');
 var jsonlint = require("jsonlint");
-var isaToOai = require('./isaToOAI');
+var agreementManager = require('governify-agreement-manager');
+var mapper = agreementManager.mappers.sla4oai;
 
 module.exports = {
 	generateGovernify: function(res, data){
-		isaToOai.convertStringOAI2Governify(data[0].content, (dataResponse) => {
+		mapper.convertString(data[0].content, (dataResponse) => {
 
 			res.send(new responseModel('OK', "The document has been generated successfully", dataResponse, null));
 
