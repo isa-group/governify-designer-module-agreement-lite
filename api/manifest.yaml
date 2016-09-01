@@ -48,7 +48,11 @@ models:
         editorThemeId: ace/theme/json
         editorThemeURI: theme-json.js
         syntaxCheck: true
-    operations: []
+    operations:
+      - id: update
+        name: Update
+        description: Delete previous version of this document if exists and load it in Registry.
+        type: simple
 #      - id: generateOAI
 #        name: Generate OAI
 #        description: Generate OAI model.

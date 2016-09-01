@@ -1,0 +1,59 @@
+{
+    "url": "",
+    "requestedState": {
+        "metrics": {
+            "SPU_IO_K00": {
+                "scope": {
+                    "serviceLine": "Línea de servicio de operación",
+                    "activity": "Actividad no planificada",
+                    "priority": "*"
+                },
+                "window": {
+                    "type": "static",
+                    "period": "monthly",
+                    "initial": "2014-10-15T22:00:00.000Z",
+                    "timeZone": "Europe/Madrid"
+                },
+                "logs": {
+                    "casdm": "http://logs-simul.sas.governify.io/api/v10.12/ca-sdm"
+                }
+            },
+            "SPU_IO_K80": {
+                "scope": {
+                    "serviceLine": "Línea de servicio de operación",
+                    "activity": "Actividad no planificada",
+                    "priority": "*",
+                    "node": "*",
+                    "center": "*"
+                },
+                "window": {
+                    "type": "static",
+                    "period": "monthly",
+                    "initial": "2014-10-15T22:00:00.000Z",
+                    "timeZone": "Europe/Madrid"
+                },
+                "logs": {
+                    "casdm": "http://logs-simul.sas.governify.io/api/v10.12/ca-sdm"
+                }
+            },
+            "SPU_IO_K81": {
+                "scope": {
+                    "serviceLine": "Línea de servicio de operación",
+                    "activity": "Actividad no planificada",
+                    "priority": "*",
+                    "node": "*",
+                    "center": "*"
+                },
+                "window": {
+                    "type": "static",
+                    "period": "monthly",
+                    "initial": "2014-10-15T22:00:00.000Z",
+                    "timeZone": "Europe/Madrid"
+                },
+                "logs": {
+                    "casdm": "http://logs-simul.sas.governify.io/api/v10.12/ca-sdm"
+                }
+            }
+        }
+    }
+}
