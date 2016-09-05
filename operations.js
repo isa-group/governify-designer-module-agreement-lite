@@ -87,8 +87,6 @@ module.exports = {
 			var registryEndpoint = agreement.context.infrastructure.registry;
 			var reporterEndpoint = agreement.context.infrastructure.reporter;
 
-			res.json(new responseModel('OK', "res:" + JSON.stringify(res, null, 2) + "\n\n"));
-
 			request({
 				url: registryEndpoint + '/api/v1/agreements/' + contractId,
 				method: 'DELETE'
@@ -107,7 +105,6 @@ module.exports = {
 					}
 
 					if (reloadConfig) {
-						reloadConfig = yaml.safeLoad(reloadConfig);
 						var reloadUrl = registryEndpoint + "/api/v1/states/" + contractId + "/reload";
 						console.log("Entering in reload invocation: " + reloadUrl);
 						if (!reloadUrl) {
