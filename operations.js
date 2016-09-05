@@ -75,15 +75,22 @@ module.exports = {
 		}
 
 	},
-	update: function(res, data) {
-		if (data.length > 0) {
+	update: function(res, data, aux2) {
 
-			var content = yaml.safeLoad(data[0].content);
-			var contractId = content.id;
-			var fileName = data[0].fileUri.replace(/\\.[^/.]+$/, '').split('/').pop();
+		if (data.length == 2) {
+
+			var agreement = yaml.safeLoad(data[0].content);
+			var contractId = agreement.id;
+
+			var reloadConfig = yaml.safeLoad(data[1].content);
+
+			var registryEndpoint = agreement.context.infrastructure.registry;
+			var reporterEndpoint = agreement.context.infrastructure.reporter;
+
+			res.json(new responseModel('OK', "res:" + JSON.stringify(res, null, 2) + "\n\n"));
 
 			request({
-				url: 'http://registry.sas.governify.io/api/v1/agreements/' + contractId,
+				url: registryEndpoint + '/api/v1/agreements/' + contractId,
 				method: 'DELETE'
 			}, (err, response, body) => {
 				if (err) {
@@ -91,65 +98,57 @@ module.exports = {
 				}
 
 				request({
-					url: 'http://registry.sas.governify.io/api/v1/agreements/',
+					url: registryEndpoint + '/api/v1/agreements/',
 					method: 'POST',
-					json: content
+					json: agreement
 				}, (err, response, body) => {
 					if (err) {
 						console.error(err);
 					}
 
-					var filePath = path.join(__dirname, 'config/reloadConfig.json');
+					if (reloadConfig) {
+						reloadConfig = yaml.safeLoad(reloadConfig);
+						var reloadUrl = registryEndpoint + "/api/v1/states/" + contractId + "/reload";
+						console.log("Entering in reload invocation: " + reloadUrl);
+						if (!reloadUrl) {
+							console.error("Bad reload parameters");
+						} else {
+							request({
+								url: reloadUrl,
+								method: "POST",
+								json: reloadConfig
+							}, function(error, currentResponse, body) {
+								if (error) {
+									console.error("Reload error: " + error);
+								} else if (currentResponse) {
+									console.log("Reload response: " + currentResponse.statusCode);
+									if (currentResponse.statusCode !== 200) {
+										console.error("Problems with reload (" + currentResponse.statusCode + ")");
+									} else {
 
-					fs.readFile(filePath, {
-						encoding: 'utf-8'
-					}, (err, reloadConfig) => {
-						if (err) throw err;
-
-						if (reloadConfig) {
-							reloadConfig = yaml.safeLoad(reloadConfig);
-							var reloadUrl = "http://registry.sas.governify.io/api/v1/states/" + contractId + "/reload";
-							console.log("Entering in reload invocation: " + reloadUrl);
-							if (!reloadUrl) {
-								console.error("Bad reload parameters");
-							} else {
-								request({
-									url: reloadUrl,
-									method: "POST",
-									json: reloadConfig
-								}, function(error, currentResponse, body) {
-									if (error) {
-										console.error("Reload error: " + error);
-									} else if (currentResponse) {
-										console.log("Reload response: " + currentResponse.statusCode);
-										if (currentResponse.statusCode !== 200) {
-											console.error("Problems with reload (" + currentResponse.statusCode + ")");
-										} else {
-
-											setTimeout(function() {
-												res.json(new responseModel('OK', "The contract has been updated:" +
-													"<ul>" +
-													"<li>Download KPI status: <a href='http://reporter.services.sas.governify.io/api/v1/contracts/" + contractId + "/kpis' target='_blank'>CSV</a> " +
-													"<a href='http://reporter.services.sas.governify.io/api/v1/contracts/" + contractId + "/kpis?format=json' target='_blank'>JSON</a></li>" +
-													"<li>Download services status: <a href='http://reporter.services.sas.governify.io/api/v1/contracts/" + contractId + "/services' target='_blank'>CSV</a> " +
-													"<a href='http://reporter.services.sas.governify.io/api/v1/contracts/" + contractId + "/services?format=json' target='_blank'>JSON</a></li>" +
-													"</ul>"), null, []);
-											}, 15000);
+										setTimeout(function() {
+											res.json(new responseModel('OK', "The contract has been updated:" +
+												"<ul>" +
+												"<li>Download KPI status: <a href='" + reporterEndpoint + "/api/v1/contracts/" + contractId + "/kpis' target='_blank'>CSV</a> " +
+												"<a href='" + reporterEndpoint + "/api/v1/contracts/" + contractId + "/kpis?format=json' target='_blank'>JSON</a></li>" +
+												"<li>Download services status: <a href='" + reporterEndpoint + "/api/v1/contracts/" + contractId + "/services' target='_blank'>CSV</a> " +
+												"<a href='" + reporterEndpoint + "/api/v1/contracts/" + contractId + "/services?format=json' target='_blank'>JSON</a></li>" +
+												"</ul>"), null, []);
+										}, 15000);
 
 
-										}
 									}
-								});
-							}
+								}
+							});
 						}
-
-					});
+					}
 
 				});
 			});
 
 		} else {
 			console.error('There was an error while retrieving the agreement')
+			res.json(new responseModel('ERROR', "There was an error while retrieving the agreement"));
 		}
 	}
 }
