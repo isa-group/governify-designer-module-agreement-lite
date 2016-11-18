@@ -48,15 +48,15 @@ models:
         editorThemeId: ace/theme/json
         editorThemeURI: theme-json.js
         syntaxCheck: true
-    operations:
-      - id: update
-        name: Update
-        description: Delete previous version of this document if exists and load it in Registry.
-        type: requireFile
-        config:
-          modalTitle: Update contract
-          modalDescription: Select a config file.
-          filter: cfg
+    operations: []
+#      - id: update
+#        name: Update
+#        description: Delete previous version of this document if exists and load it in Registry.
+#        type: requireFile
+#        config:
+#          modalTitle: Update contract
+#          modalDescription: Select a config file.
+#          filter: cfg
 #      - id: generateOAI
 #        name: Generate OAI
 #        description: Generate OAI model.
@@ -82,7 +82,7 @@ models:
         syntaxCheck: true
     operations:
       - id: generateGovernify
-        name: Generate Governify 
+        name: Generate Governify
         description: Generate Governify model.
         type: createFile
         config:
