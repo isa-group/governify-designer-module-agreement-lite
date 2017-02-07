@@ -16,6 +16,10 @@ var mapMinizincType = {
 };
 
 module.exports = {
+    generateMinizincCCC: function (res, data) {
+        var mznData = "";
+        res.send(new responseModel('OK', "The Minizinc Compensation Consistency Constraint document has been successfully generated", mznData, null));
+    },
     generateMinizincCFC: function (res, data) {
         var agreement = yaml.safeLoad(data[0].content, 'utf8');
 
@@ -24,71 +28,30 @@ module.exports = {
         var guarantees = agreement.terms.guarantees;
 
         var mznData = "";
-        var mznVarCache = [];
-        var mznPenalVarInit = "";
-        var mznPenalConstraints = "";
-        var mznRewardConstraints = "";
-
-        guarantees.forEach(function (guarantee) {
-            mznData += "% CFC for guarantee " + guarantee.id + " \n";
-            guarantee.of.forEach(function (of) {
-
-                // CFC for penalties
-                of.penalties.forEach(function (penalty) {
-                    var penaltyName = Object.keys(penalty.over)[0];
-                    var penaltyCFCs = "";
-                    penalty.of.forEach(function (_of) {
-                        if (_of.value && _of.value !== "" && _of.condition && _of.condition !== "") {
-                            if (penaltyCFCs !== "") penaltyCFCs += "\n\txor ";
-                            penaltyCFCs += "( ((" + penaltyName + " == " + Math.abs(_of.value) + ") \/\\ (" + _of.condition + "))"
-                                + "\n\txor ((" + penaltyName + " == " + 0 + ") \/\\ not (" + _of.condition + ")) )";
-                        }
-                    });
-                    mznPenalConstraints += penaltyCFCs;
-                });
-
-                // CFC for rewards
-                of.rewards.forEach(function (reward) {
-                    var rewardName = Object.keys(reward.over)[0];
-                    var rewardCFCs = "";
-                    reward.of.forEach(function (_of) {
-                        if (_of.value && _of.value !== "" && _of.condition && _of.condition !== "") {
-                            if (rewardCFCs !== "") rewardCFCs += "\n\txor ";
-                            rewardCFCs += "( ((" + rewardName + " == " + Math.abs(_of.value) + ") \/\\ (" + _of.condition + "))"
-                                + "\n\txor ((" + rewardName + " == " + 0 + ") \/\\ not (" + _of.condition + ")) )";
-                        }
-                    });
-                    mznRewardConstraints += rewardCFCs;
-                });
-            });
-        });
 
         mznData += getDefinitionsVar(definitions) + "\n";
         mznData += getMetricsVar(metrics) + "\n";
-        // Concatenate CFC with XOR
-        mznData += "constraint " + [mznPenalConstraints, mznRewardConstraints].join("\n\txor ").replace(/(xor)+/g, "xor").replace(/^xor/, "").replace(/xor$/, "") + ";\n";
-
+        mznData += getCFC(guarantees) + "\n";
         //TODO: decide which CSP type of solution to use
         mznData += "solve satisfy;\n";
 
-        res.send(new responseModel('OK', "generateMinizincCFC executed", mznData, null));
+        res.send(new responseModel('OK', "The Minizinc Compensation Function Constraint document has been successfully generated", mznData, null));
     },
     generateMinizincConstraints: function (res, data) {
-        var mznData = "";
         var agreement = yaml.safeLoad(data[0].content, 'utf8');
 
         var definitions = agreement.context.definitions.schemas;
         var metrics = agreement.terms.metrics;
         var guarantees = agreement.terms.guarantees;
 
+        var mznData = "";
         mznData += getDefinitionsVar(definitions) + "\n";
         mznData += getMetricsVar(metrics) + "\n";
         mznData += getGuarateesConstraints(guarantees) + "\n";
-
         //TODO: decide which CSP type of solution to use
         mznData += "solve satisfy;\n";
 
-        res.send(new responseModel('OK', "generateMinizincConstraints executed", mznData, null));
+        res.send(new responseModel('OK', "The Minizinc constraints document has been successfully generated", mznData, null));
     },
     generateGovernify: function (res, data) {
         mapper.convertString(data[0].content, (dataResponse) => {
@@ -294,4 +257,52 @@ var getGuarateesConstraints = (guarantees) => {
         });
     }
     return "% Guarantees objectives\n" + ret;
+};
+
+var getCFC = (guarantees) => {
+    var mznPenalConstraints = "";
+    var mznRewardConstraints = "";
+    var ret = "";
+
+    guarantees.forEach(function (guarantee) {
+        guarantee.of.forEach(function (of) {
+
+            // CFC for penalties
+            of.penalties.forEach(function (penalty) {
+                var penaltyName = Object.keys(penalty.over)[0];
+                var penaltyCFCs = "";
+                penalty.of.forEach(function (_of) {
+                    if (_of.value && _of.value !== "" && _of.condition && _of.condition !== "") {
+                        if (penaltyCFCs !== "") penaltyCFCs += "\n\txor ";
+                        penaltyCFCs += "( ((" + penaltyName + " == " + Math.abs(_of.value) + ") \/\\ (" + _of.condition + "))" +
+                            "\n\txor ((" + penaltyName + " == " + 0 + ") \/\\ not (" + _of.condition + ")) )";
+                    }
+                });
+                mznPenalConstraints += penaltyCFCs;
+            });
+
+            // CFC for rewards
+            of.rewards.forEach(function (reward) {
+                var rewardName = Object.keys(reward.over)[0];
+                var rewardCFCs = "";
+                reward.of.forEach(function (_of) {
+                    if (_of.value && _of.value !== "" && _of.condition && _of.condition !== "") {
+                        if (rewardCFCs !== "") rewardCFCs += "\n\txor ";
+                        rewardCFCs += "( ((" + rewardName + " == " + Math.abs(_of.value) + ") \/\\ (" + _of.condition + "))" +
+                            "\n\txor ((" + rewardName + " == " + 0 + ") \/\\ not (" + _of.condition + ")) )";
+                    }
+                });
+                mznRewardConstraints += rewardCFCs;
+            });
+        });
+
+        if (mznPenalConstraints !== "" || mznRewardConstraints !== "") {
+            if (ret !== "") ret += "\n";
+            ret += "% CFC for guarantee " + guarantee.id + " \nconstraint " + [mznPenalConstraints, mznRewardConstraints].join("\n\txor ")
+                .replace(/(xor)+/g, "xor").replace(/^xor/, "").replace(/xor$/, "") + ";\n";
+        }
+    });
+
+    return ret;
+
 };

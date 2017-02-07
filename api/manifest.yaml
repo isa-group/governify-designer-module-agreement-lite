@@ -56,8 +56,14 @@ models:
         config:
           ext: mzn
       - id: generateMinizincCFC
-        name: Generate Minizinc CFC
+        name: Mzn (CFC)
         description: Generate Minizinc Compensation Function Constraints model.
+        type: createFile
+        config:
+          ext: mzn
+      - id: generateMinizincCCC
+        name: Mzn (CCC)
+        description: Generate Minizinc Compensation Consistency Constraints model.
         type: createFile
         config:
           ext: mzn
