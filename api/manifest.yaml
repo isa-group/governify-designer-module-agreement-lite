@@ -48,7 +48,13 @@ models:
         editorThemeId: ace/theme/json
         editorThemeURI: theme-json.js
         syntaxCheck: true
-    operations: []
+    operations:
+      - id: generateMinizincConstraints
+        name: Generate Minizinc
+        description: Generate Minizinc constraints model.
+        type: createFile
+        config:
+          ext: mzn
 #      - id: update
 #        name: Update
 #        description: Delete previous version of this document if exists and load it in Registry.

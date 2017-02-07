@@ -9,6 +9,73 @@ var fs = require('fs');
 var path = require('path');
 
 module.exports = {
+    generateMinizincConstraints: function (res, data) {
+        var minizincData = "";
+        var agreement = yaml.safeLoad(data[0].content, 'utf8');
+
+        var definitions = agreement.context.definitions.schemas;
+        var metrics = agreement.terms.metrics;
+        var guarantees = agreement.terms.guarantees;
+
+        var mapType = {
+            boolean: 'bool',
+            double: '0.0..1000.0',
+            float: '0.0..1000.0',
+            integer: '0..1000'
+        };
+
+        // Transform definition schemas to minizinc variables
+        var getDefinitionsVar = function (definitions) {
+            var ret = "";
+            if (definitions) {
+                var names = Object.keys(definitions);
+                names.forEach(function (name) {
+                    ret += "var " + mapType[ definitions[name].type ] + ": " + name + ";\n";
+                });
+            }
+            return "% Definitions variables\n" + ret;
+        };
+
+        // Transform metrics schemas to minizinc variables
+        var getMetricsVar = function (metrics) {
+            var ret = "";
+            if (metrics) {
+                var names = Object.keys(metrics);
+                names.forEach(function (name) {
+                    ret += "var " + mapType[ metrics[name].schema.type ] + ": " + name + ";\n";
+                });
+            }
+            return "% Metrics variables\n" + ret;
+        };
+
+        // Transform guarantees objectives to minizinc contraints
+        var getGuarateesConstraints = function (guarantees) {
+            var ret = "";
+            if (guarantees) {
+                guarantees.forEach(function (guarantee) {
+                    guarantee.of.forEach(function (of) {
+                        if (of.precondition && of.precondition !== "") {
+                            // Use "precondition->objective" to define constraint
+                            ret += "constraint (" + of.precondition + ") -> (" + of.objective + ");\n";
+                        } else if (of.objective && of.objective !== "") {
+                            // Use "objective" property to define constraint
+                            ret += "constraint " + of.objective + ";\n";
+                        }
+                    });
+                });
+            }
+            return "% Guarantees objectives\n" + ret;
+        };
+
+        minizincData += getDefinitionsVar(definitions) + "\n";
+        minizincData += getMetricsVar(metrics) + "\n";
+        minizincData += getGuarateesConstraints(guarantees) + "\n";
+
+        //TODO: decide which CSP type of solution to use
+        minizincData += "solve satisfy;\n";
+
+        res.send(new responseModel('OK', "generateMinizincConstraints executed", minizincData, null));
+    },
     generateGovernify: function (res, data) {
         mapper.convertString(data[0].content, (dataResponse) => {
 
@@ -26,56 +93,56 @@ module.exports = {
     },
     check: function (syntax, res, data) {
         switch (syntax) {
-        case 'json':
-            try {
-                jsonlint.parse(data.content);
-                res.json(new responseModel('OK', null, null, null));
-            } catch (e) {
-                var row = e.toString().split("line ")[1].split(":")[0];
-                var annotations = [new annotation('error', parseInt(row) - 1 + '', '1', e.toString())]
-                res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
-            }
-            break;
-        case 'yaml':
-            try {
-                yaml.safeLoad(data.content, 'utf8');
-                res.json(new responseModel('OK', null, null, null));
-            } catch (e) {
-                var annotations = [new annotation('error', e.mark.line, e.mark.column, e.reason)];
-                res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
-            }
-            break;
+            case 'json':
+                try {
+                    jsonlint.parse(data.content);
+                    res.json(new responseModel('OK', null, null, null));
+                } catch (e) {
+                    var row = e.toString().split("line ")[1].split(":")[0];
+                    var annotations = [new annotation('error', parseInt(row) - 1 + '', '1', e.toString())]
+                    res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+                }
+                break;
+            case 'yaml':
+                try {
+                    yaml.safeLoad(data.content, 'utf8');
+                    res.json(new responseModel('OK', null, null, null));
+                } catch (e) {
+                    var annotations = [new annotation('error', e.mark.line, e.mark.column, e.reason)];
+                    res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+                }
+                break;
         }
     },
     translate: function (syntaxSrc, syntaxDes, res, data) {
 
         switch (syntaxSrc) {
-        case 'json':
-            if (syntaxDes != 'yaml') {
+            case 'json':
+                if (syntaxDes != 'yaml') {
 
-                translateCombinationError(res, syntaxDes);
+                    translateCombinationError(res, syntaxDes);
 
-            } else {
+                } else {
 
-                var dataObject = JSON.parse(data.content);
-                res.json(new responseModel('OK', 'The content has been translated', yaml.safeDump(dataObject), []));
+                    var dataObject = JSON.parse(data.content);
+                    res.json(new responseModel('OK', 'The content has been translated', yaml.safeDump(dataObject), []));
 
-            }
-            break;
-        case 'yaml':
-            if (syntaxDes != 'json') {
+                }
+                break;
+            case 'yaml':
+                if (syntaxDes != 'json') {
 
-                translateCombinationError(res, syntaxDes);
+                    translateCombinationError(res, syntaxDes);
 
-            } else {
+                } else {
 
-                var dataObject = yaml.safeLoad(data.content);
-                res.json(new responseModel('OK', 'The content has been translated', JSON.stringify(dataObject, null, 2), []));
+                    var dataObject = yaml.safeLoad(data.content);
+                    res.json(new responseModel('OK', 'The content has been translated', JSON.stringify(dataObject, null, 2), []));
 
-            }
-            break;
-        default:
-            res.json(new responseModel('ERROR', "It is not possible to translate from " + syntaxSrc + " to " + syntaxDes, null, []));
+                }
+                break;
+            default:
+                res.json(new responseModel('ERROR', "It is not possible to translate from " + syntaxSrc + " to " + syntaxDes, null, []));
         }
 
     },
