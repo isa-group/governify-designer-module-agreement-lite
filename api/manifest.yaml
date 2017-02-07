@@ -55,6 +55,12 @@ models:
         type: createFile
         config:
           ext: mzn
+      - id: generateMinizincCFC
+        name: Generate Minizinc CFC
+        description: Generate Minizinc Compensation Function Constraints model.
+        type: createFile
+        config:
+          ext: mzn
 #      - id: update
 #        name: Update
 #        description: Delete previous version of this document if exists and load it in Registry.

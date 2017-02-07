@@ -8,73 +8,87 @@ var request = require('request');
 var fs = require('fs');
 var path = require('path');
 
+var mapMinizincType = {
+    boolean: 'bool',
+    double: '0.0..1000.0',
+    float: '0.0..1000.0',
+    integer: '0..1000'
+};
+
 module.exports = {
-    generateMinizincConstraints: function (res, data) {
-        var minizincData = "";
+    generateMinizincCFC: function (res, data) {
         var agreement = yaml.safeLoad(data[0].content, 'utf8');
 
         var definitions = agreement.context.definitions.schemas;
         var metrics = agreement.terms.metrics;
         var guarantees = agreement.terms.guarantees;
 
-        var mapType = {
-            boolean: 'bool',
-            double: '0.0..1000.0',
-            float: '0.0..1000.0',
-            integer: '0..1000'
-        };
+        var mznData = "";
+        var mznVarCache = [];
+        var mznPenalVarInit = "";
+        var mznPenalConstraints = "";
+        var mznRewardConstraints = "";
 
-        // Transform definition schemas to minizinc variables
-        var getDefinitionsVar = function (definitions) {
-            var ret = "";
-            if (definitions) {
-                var names = Object.keys(definitions);
-                names.forEach(function (name) {
-                    ret += "var " + mapType[ definitions[name].type ] + ": " + name + ";\n";
-                });
-            }
-            return "% Definitions variables\n" + ret;
-        };
+        guarantees.forEach(function (guarantee) {
+            mznData += "% CFC for guarantee " + guarantee.id + " \n";
+            guarantee.of.forEach(function (of) {
 
-        // Transform metrics schemas to minizinc variables
-        var getMetricsVar = function (metrics) {
-            var ret = "";
-            if (metrics) {
-                var names = Object.keys(metrics);
-                names.forEach(function (name) {
-                    ret += "var " + mapType[ metrics[name].schema.type ] + ": " + name + ";\n";
-                });
-            }
-            return "% Metrics variables\n" + ret;
-        };
-
-        // Transform guarantees objectives to minizinc contraints
-        var getGuarateesConstraints = function (guarantees) {
-            var ret = "";
-            if (guarantees) {
-                guarantees.forEach(function (guarantee) {
-                    guarantee.of.forEach(function (of) {
-                        if (of.precondition && of.precondition !== "") {
-                            // Use "precondition->objective" to define constraint
-                            ret += "constraint (" + of.precondition + ") -> (" + of.objective + ");\n";
-                        } else if (of.objective && of.objective !== "") {
-                            // Use "objective" property to define constraint
-                            ret += "constraint " + of.objective + ";\n";
+                // CFC for penalties
+                of.penalties.forEach(function (penalty) {
+                    var penaltyName = Object.keys(penalty.over)[0];
+                    var penaltyCFCs = "";
+                    penalty.of.forEach(function (_of) {
+                        if (_of.value && _of.value !== "" && _of.condition && _of.condition !== "") {
+                            if (penaltyCFCs !== "") penaltyCFCs += "\n\txor ";
+                            penaltyCFCs += "( ((" + penaltyName + " == " + Math.abs(_of.value) + ") \/\\ (" + _of.condition + "))"
+                                + "\n\txor ((" + penaltyName + " == " + 0 + ") \/\\ not (" + _of.condition + ")) )";
                         }
                     });
+                    mznPenalConstraints += penaltyCFCs;
                 });
-            }
-            return "% Guarantees objectives\n" + ret;
-        };
 
-        minizincData += getDefinitionsVar(definitions) + "\n";
-        minizincData += getMetricsVar(metrics) + "\n";
-        minizincData += getGuarateesConstraints(guarantees) + "\n";
+                // CFC for rewards
+                of.rewards.forEach(function (reward) {
+                    var rewardName = Object.keys(reward.over)[0];
+                    var rewardCFCs = "";
+                    reward.of.forEach(function (_of) {
+                        if (_of.value && _of.value !== "" && _of.condition && _of.condition !== "") {
+                            if (rewardCFCs !== "") rewardCFCs += "\n\txor ";
+                            rewardCFCs += "( ((" + rewardName + " == " + Math.abs(_of.value) + ") \/\\ (" + _of.condition + "))"
+                                + "\n\txor ((" + rewardName + " == " + 0 + ") \/\\ not (" + _of.condition + ")) )";
+                        }
+                    });
+                    mznRewardConstraints += rewardCFCs;
+                });
+            });
+        });
+
+        mznData += getDefinitionsVar(definitions) + "\n";
+        mznData += getMetricsVar(metrics) + "\n";
+        // Concatenate CFC with XOR
+        mznData += "constraint " + [mznPenalConstraints, mznRewardConstraints].join("\n\txor ").replace(/(xor)+/g, "xor").replace(/^xor/, "").replace(/xor$/, "") + ";\n";
 
         //TODO: decide which CSP type of solution to use
-        minizincData += "solve satisfy;\n";
+        mznData += "solve satisfy;\n";
 
-        res.send(new responseModel('OK', "generateMinizincConstraints executed", minizincData, null));
+        res.send(new responseModel('OK', "generateMinizincCFC executed", mznData, null));
+    },
+    generateMinizincConstraints: function (res, data) {
+        var mznData = "";
+        var agreement = yaml.safeLoad(data[0].content, 'utf8');
+
+        var definitions = agreement.context.definitions.schemas;
+        var metrics = agreement.terms.metrics;
+        var guarantees = agreement.terms.guarantees;
+
+        mznData += getDefinitionsVar(definitions) + "\n";
+        mznData += getMetricsVar(metrics) + "\n";
+        mznData += getGuarateesConstraints(guarantees) + "\n";
+
+        //TODO: decide which CSP type of solution to use
+        mznData += "solve satisfy;\n";
+
+        res.send(new responseModel('OK', "generateMinizincConstraints executed", mznData, null));
     },
     generateGovernify: function (res, data) {
         mapper.convertString(data[0].content, (dataResponse) => {
@@ -238,3 +252,46 @@ function annotation(type, row, column, text) {
     this.column = column;
     this.text = text;
 }
+
+// Transform definition schemas to minizinc variables
+var getDefinitionsVar = (definitions) => {
+    var ret = "";
+    if (definitions) {
+        var names = Object.keys(definitions);
+        names.forEach(function (name) {
+            ret += "var " + mapMinizincType[definitions[name].type] + ": " + name + ";\n";
+        });
+    }
+    return "% Definitions variables\n" + ret;
+};
+
+// Transform metrics schemas to minizinc variables
+var getMetricsVar = (metrics) => {
+    var ret = "";
+    if (metrics) {
+        var names = Object.keys(metrics);
+        names.forEach(function (name) {
+            ret += "var " + mapMinizincType[metrics[name].schema.type] + ": " + name + ";\n";
+        });
+    }
+    return "% Metrics variables\n" + ret;
+};
+
+// Transform guarantees objectives to minizinc contraints
+var getGuarateesConstraints = (guarantees) => {
+    var ret = "";
+    if (guarantees) {
+        guarantees.forEach(function (guarantee) {
+            guarantee.of.forEach(function (of) {
+                if (of.precondition && of.precondition !== "") {
+                    // Use "precondition->objective" to define constraint
+                    ret += "constraint (" + of.precondition + ") -> (" + of.objective + ");\n";
+                } else if (of.objective && of.objective !== "") {
+                    // Use "objective" property to define constraint
+                    ret += "constraint " + of.objective + ";\n";
+                }
+            });
+        });
+    }
+    return "% Guarantees objectives\n" + ret;
+};
