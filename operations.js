@@ -8,7 +8,7 @@ var request = require('request');
 var fs = require('fs');
 var path = require('path');
 // Agreement Analyzer
-const AgreementAnalyzer = require("E:\\Documents\\Coding\\CSP\\governify-agreement-analyzer");
+const AgreementAnalyzer = require("governify-agreement-analyzer");
 const AgreementModel = AgreementAnalyzer.AgreementModel;
 const AgreementCompensationCSPModelBuilder = AgreementAnalyzer.AgreementCompensationCSPModelBuilder;
 // CSP Tools
