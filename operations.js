@@ -29,7 +29,7 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "remote",
+                type: "api",
                 folder: "csp_files",
                 api: {
                     version: apiVersion,
@@ -55,7 +55,7 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "remote",
+                type: "api",
                 folder: "csp_files",
                 api: {
                     version: apiVersion,
@@ -81,7 +81,7 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "remote",
+                type: "api",
                 folder: "csp_files",
                 api: {
                     version: apiVersion,
@@ -107,7 +107,7 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "remote",
+                type: "api",
                 folder: "csp_files",
                 api: {
                     version: apiVersion,
@@ -133,7 +133,7 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "remote",
+                type: "api",
                 folder: "csp_files",
                 api: {
                     version: apiVersion,
@@ -159,7 +159,7 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "remote",
+                type: "api",
                 folder: "csp_files",
                 api: {
                     version: apiVersion,
@@ -185,7 +185,7 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "remote",
+                type: "api",
                 folder: "csp_files",
                 api: {
                     version: apiVersion,
@@ -222,7 +222,7 @@ module.exports = {
                             content: yaml.safeLoad(data.content, 'utf8')
                         },
                         reasoner: {
-                            type: "remote",
+                            type: "api",
                             folder: "csp_files",
                             api: {
                                 version: apiVersion,
@@ -270,7 +270,7 @@ module.exports = {
                             content: JSON.parse(data.content)
                         },
                         reasoner: {
-                            type: "remote",
+                            type: "api",
                             folder: "csp_files",
                             api: {
                                 version: apiVersion,
