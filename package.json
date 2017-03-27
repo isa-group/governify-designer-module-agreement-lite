@@ -13,6 +13,7 @@
     "cors": "^2.7.1",
     "express": "^4.13.4",
     "governify-agreement-manager": "0.0.8",
+    "governify-agreement-analyzer": "~0.2.0",
     "governify-csp-tools": "~0.2.1",
     "js-yaml": "^3.3.0",
     "jsonlint": "^1.6.2",
