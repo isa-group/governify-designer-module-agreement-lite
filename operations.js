@@ -7,51 +7,260 @@ var mapper = agreementManager.translators.sla4oai;
 var request = require('request');
 var fs = require('fs');
 var path = require('path');
-
-var mapMinizincType = {
-    boolean: 'bool',
-    double: '0.0..1000.0',
-    float: '0.0..1000.0',
-    integer: '0..1000'
-};
+// Agreement Analyzer
+const AgreementAnalyzer = require("E:\\Documents\\Coding\\CSP\\governify-agreement-analyzer");
+const AgreementModel = AgreementAnalyzer.AgreementModel;
+const AgreementCompensationCSPModelBuilder = AgreementAnalyzer.AgreementCompensationCSPModelBuilder;
+// CSP Tools
+const CSPTools = require("governify-csp-tools");
+const Reasoner = CSPTools.Reasoner;
+const CSPModelMinizincTranslator = CSPTools.CSPModelMinizincTranslator;
+const annotationErrorFilter = /(.*mzn:.*|MiniZinc:\s+)/g;
 
 module.exports = {
-    generateMinizincCCC: function (res, data) {
-        var mznData = "";
-        res.send(new responseModel('OK', "The Minizinc Compensation Consistency Constraint document has been successfully generated", mznData, null));
+    checkCFC: function (res, data) {
+
+        let analyzer = new AgreementAnalyzer({
+            agreement: {
+                content: yaml.safeLoad(data[0].content, 'utf8')
+            },
+            reasoner: {
+                type: "local",
+                folder: "csp_files"
+            }
+        });
+
+        analyzer.isSatisfiableCFC(function (err, stdout, stderr, isSatisfiable) {
+            if (!err) {
+                res.send(new responseModel('OK', cspResponse(err, stdout, "CFC"), data, null));
+            } else {
+                res.send(err);
+            }
+        });
+
     },
-    generateMinizincCFC: function (res, data) {
-        var agreement = yaml.safeLoad(data[0].content, 'utf8');
+    checkCCC: function (res, data) {
 
-        var definitions = agreement.context.definitions.schemas;
-        var metrics = agreement.terms.metrics;
-        var guarantees = agreement.terms.guarantees;
+        let analyzer = new AgreementAnalyzer({
+            agreement: {
+                content: yaml.safeLoad(data[0].content, 'utf8')
+            },
+            reasoner: {
+                type: "local",
+                folder: "csp_files"
+            }
+        });
 
-        var mznData = "";
+        analyzer.isSatisfiableCCC(function (err, stdout, stderr, isSatisfiable) {
+            if (!err) {
+                res.send(new responseModel('OK', cspResponse(err, stdout, "CCC"), data, null));
+            } else {
+                res.send(err);
+            }
+        });
 
-        mznData += getDefinitionsVar(definitions) + "\n";
-        mznData += getMetricsVar(metrics) + "\n";
-        mznData += getCFC(guarantees) + "\n";
-        //TODO: decide which CSP type of solution to use
-        mznData += "solve satisfy;\n";
-
-        res.send(new responseModel('OK', "The Minizinc Compensation Function Constraint document has been successfully generated", mznData, null));
     },
-    generateMinizincConstraints: function (res, data) {
-        var agreement = yaml.safeLoad(data[0].content, 'utf8');
+    checkCSC: function (res, data) {
 
-        var definitions = agreement.context.definitions.schemas;
-        var metrics = agreement.terms.metrics;
-        var guarantees = agreement.terms.guarantees;
+        let analyzer = new AgreementAnalyzer({
+            agreement: {
+                content: yaml.safeLoad(data[0].content, 'utf8')
+            },
+            reasoner: {
+                type: "local",
+                folder: "csp_files"
+            }
+        });
 
-        var mznData = "";
-        mznData += getDefinitionsVar(definitions) + "\n";
-        mznData += getMetricsVar(metrics) + "\n";
-        mznData += getGuarateesConstraints(guarantees) + "\n";
-        //TODO: decide which CSP type of solution to use
-        mznData += "solve satisfy;\n";
+        analyzer.isSatisfiableCSC(function (err, stdout, stderr, isSatisfiable) {
+            if (!err) {
+                res.send(new responseModel('OK', cspResponse(err, stdout, "CSC"), data, null));
+            } else {
+                res.send(err);
+            }
+        });
 
-        res.send(new responseModel('OK', "The Minizinc constraints document has been successfully generated", mznData, null));
+    },
+    checkGCC: function (res, data) {
+
+        let analyzer = new AgreementAnalyzer({
+            agreement: {
+                content: yaml.safeLoad(data[0].content, 'utf8')
+            },
+            reasoner: {
+                type: "local",
+                folder: "csp_files"
+            }
+        });
+
+        analyzer.isSatisfiableGCC(function (err, stdout, stderr, isSatisfiable) {
+            if (!err) {
+                res.send(new responseModel('OK', cspResponse(err, stdout, "GCC"), data, null));
+            } else {
+                res.send(err);
+            }
+        });
+
+    },
+    checkOGT: function (res, data) {
+
+        let analyzer = new AgreementAnalyzer({
+            agreement: {
+                content: yaml.safeLoad(data[0].content, 'utf8')
+            },
+            reasoner: {
+                type: "local",
+                folder: "csp_files"
+            }
+        });
+
+        analyzer.isSatisfiableOGT(function (err, stdout, stderr, isSatisfiable) {
+            if (!err) {
+                res.send(new responseModel('OK', cspResponse(err, stdout, "OGT"), data, null));
+            } else {
+                res.send(err);
+            }
+        });
+
+    },
+    checkOBT: function (res, data) {
+
+        let analyzer = new AgreementAnalyzer({
+            agreement: {
+                content: yaml.safeLoad(data[0].content, 'utf8')
+            },
+            reasoner: {
+                type: "local",
+                folder: "csp_files"
+            }
+        });
+
+        analyzer.isSatisfiableOBT(function (err, stdout, stderr, isSatisfiable) {
+            if (!err) {
+                res.send(new responseModel('OK', cspResponse(err, stdout, "OBT"), data, null));
+            } else {
+                res.send(err);
+            }
+        });
+
+    },
+    checkConstraints: function (res, data) {
+
+        let analyzer = new AgreementAnalyzer({
+            agreement: {
+                content: yaml.safeLoad(data[0].content, 'utf8')
+            },
+            reasoner: {
+                type: "local",
+                folder: "csp_files"
+            }
+        });
+
+        analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable) {
+            if (!err) {
+                res.send(new responseModel('OK', cspResponse(err, stdout, "constraints"), data, null));
+            } else {
+                res.send(err);
+            }
+        });
+
+    },
+    checkConsistency: function (syntax, res, data) {
+
+        if (data.content === "") {
+
+            // Nothing to do
+            res.json(new responseModel('OK', null, null, null));
+
+        } else {
+
+            switch (syntax) {
+
+                case 'yaml':
+
+                    var analyzer = new AgreementAnalyzer({
+                        agreement: {
+                            content: yaml.safeLoad(data.content, 'utf8')
+                        },
+                        reasoner: {
+                            type: "local",
+                            folder: "csp_files"
+                        }
+                    });
+
+                    analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable) {
+                        if (err) {
+
+                            var re = /.*\.mzn:([0-9]+):.*/;
+                            var annotations = [];
+                            var stderr = stdout; // solution param contains execution error information
+                            var errorMsgs = stderr.split(/\r?\n\r?\n/);
+
+                            errorMsgs.forEach((errorMsg, index) => {
+                                let e = errorMsg.replace(annotationErrorFilter, "").trim();
+                                if (index === 0) e = "CSP execution error:\n" + e;
+                                annotations.push(new annotation('error', 0, 0, e));
+                            });
+
+                            if (annotations.length > 0) {
+                                res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+                            } else {
+                                res.json(new responseModel('OK_PROBLEMS', null, null, [new annotation('error', 0, 0, stderr ?
+                                    "CSP execution error: " + stderr.replace(annotationErrorFilter, "").trim() :
+                                    (typeof error === "object" && error.message) ? "CSP execution error: " + error.message.replace(annotationErrorFilter, "").trim() : "")]));
+                            }
+
+                        } else if (stdout.indexOf("=====UNSATISFIABLE=====" === -1)) {
+                            res.json(new responseModel('OK', null, null, null));
+                        } else {
+                            res.json(new responseModel('OK_PROBLEMS', null, null, [new annotation('error', 0, 0, stdout)]));
+                        }
+                    });
+
+                    break;
+
+                case 'json':
+
+                    var analyzer = new AgreementAnalyzer({
+                        agreement: {
+                            content: JSON.parse(data.content)
+                        },
+                        reasoner: {
+                            type: "local",
+                            folder: "csp_files"
+                        }
+                    });
+
+                    analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable) {
+                        if (err) {
+
+                            var re = /.*\.mzn:([0-9]+):.*/;
+                            var annotations = [];
+                            var stderr = stdout; // solution param contains execution error information
+                            var errorMsgs = stderr.split(/\r?\n\r?\n/);
+
+                            errorMsgs.forEach((errorMsg, index) => {
+                                annotations.push(new annotation('error', 0, 0, errorMsg.replace(annotationErrorFilter, "").trim()));
+                            });
+
+                            if (annotations.length > 0) {
+                                res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+                            } else {
+                                res.json(new responseModel('OK_PROBLEMS', null, null, [new annotation('error', 0, 0, stderr ?
+                                    stderr.replace(annotationErrorFilter, "").trim() :
+                                    (typeof error === "object" && error.message) ? error.message.replace(annotationErrorFilter, "").trim() : "")]));
+                            }
+
+                        } else {
+                            res.json(new responseModel('OK', null, null, null));
+                        }
+                    });
+
+                    break;
+            }
+
+        }
+
     },
     generateGovernify: function (res, data) {
         mapper.convertString(data[0].content, (dataResponse) => {
@@ -72,8 +281,18 @@ module.exports = {
         switch (syntax) {
             case 'json':
                 try {
-                    jsonlint.parse(data.content);
-                    res.json(new responseModel('OK', null, null, null));
+
+                    let agreement = jsonlint.parse(data.content);
+                    var model = new AgreementModel(agreement);
+                    let isValid = model.validate();
+
+                    if (isValid) {
+                        res.json(new responseModel('OK', null, null, null));
+                    } else {
+                        let annotations = [new annotation('error', 0, 0, agreementValidationErrorToString(model.validationErrors[0]))];
+                        res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+                    }
+
                 } catch (e) {
                     var row = e.toString().split("line ")[1].split(":")[0];
                     var annotations = [new annotation('error', parseInt(row) - 1 + '', '1', e.toString())]
@@ -82,8 +301,18 @@ module.exports = {
                 break;
             case 'yaml':
                 try {
-                    yaml.safeLoad(data.content, 'utf8');
-                    res.json(new responseModel('OK', null, null, null));
+
+                    let agreement = yaml.safeLoad(data.content, 'utf8');
+                    var model = new AgreementModel(agreement);
+                    let isValid = model.validate();
+
+                    if (isValid) {
+                        res.json(new responseModel('OK', null, null, null));
+                    } else {
+                        let annotations = [new annotation('error', 0, 0, agreementValidationErrorToString(model.validationErrors[0]))];
+                        res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+                    }
+
                 } catch (e) {
                     var annotations = [new annotation('error', e.mark.line, e.mark.column, e.reason)];
                     res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
@@ -216,93 +445,42 @@ function annotation(type, row, column, text) {
     this.text = text;
 }
 
-// Transform definition schemas to minizinc variables
-var getDefinitionsVar = (definitions) => {
-    var ret = "";
-    if (definitions) {
-        var names = Object.keys(definitions);
-        names.forEach(function (name) {
-            ret += "var " + mapMinizincType[definitions[name].type] + ": " + name + ";\n";
-        });
-    }
-    return "% Definitions variables\n" + ret;
-};
+function cspResponse(err, stdout, type) {
 
-// Transform metrics schemas to minizinc variables
-var getMetricsVar = (metrics) => {
-    var ret = "";
-    if (metrics) {
-        var names = Object.keys(metrics);
-        names.forEach(function (name) {
-            ret += "var " + mapMinizincType[metrics[name].schema.type] + ": " + name + ";\n";
-        });
-    }
-    return "% Metrics variables\n" + ret;
-};
+    let index = Math.round(Math.random() * 1000);
+    let linkTitle = "details";
 
-// Transform guarantees objectives to minizinc contraints
-var getGuarateesConstraints = (guarantees) => {
-    var ret = "";
-    if (guarantees) {
-        guarantees.forEach(function (guarantee) {
-            guarantee.of.forEach(function (of) {
-                if (of.precondition && of.precondition !== "") {
-                    // Use "precondition->objective" to define constraint
-                    ret += "constraint (" + of.precondition + ") -> (" + of.objective + ");\n";
-                } else if (of.objective && of.objective !== "") {
-                    // Use "objective" property to define constraint
-                    ret += "constraint " + of.objective + ";\n";
-                }
-            });
-        });
-    }
-    return "% Guarantees objectives\n" + ret;
-};
+    return "<pre><div>The document has been successfully executed</div><div>" + generateCollapsiblePanel(index, linkTitle, stdout) + "</div></pre>";
 
-var getCFC = (guarantees) => {
-    var mznPenalConstraints = "";
-    var mznRewardConstraints = "";
-    var ret = "";
+}
 
-    guarantees.forEach(function (guarantee) {
-        guarantee.of.forEach(function (of) {
+function generateCollapsiblePanel(index, linkTitle, message) {
+    return "<span onclick=\"$('.link-" + index + "').text(($('.span-" + index + "').css('display') == 'block' ? 'Show' : 'Hide') + ' " +
+        linkTitle +
+        "');" +
+        "$('.span-" +
+        index +
+        "').toggle('slow')\">" +
+        "\n\n" +
+        "<a class='link-" +
+        index +
+        "' href=\"javascript:void(0)\" style=\"font-style: normal; font-size: 11px;\">Show " +
+        linkTitle +
+        "</a>" +
+        "</span>" +
+        "<div class=\"span-" +
+        index +
+        "\" style=\"display:none; font-style: normal; font-family: Courier; font-size:11px;\">" +
+        message + "</div>";
+}
 
-            // CFC for penalties
-            of.penalties.forEach(function (penalty) {
-                var penaltyName = Object.keys(penalty.over)[0];
-                var penaltyCFCs = "";
-                penalty.of.forEach(function (_of) {
-                    if (_of.value && _of.value !== "" && _of.condition && _of.condition !== "") {
-                        if (penaltyCFCs !== "") penaltyCFCs += "\n\txor ";
-                        penaltyCFCs += "( ((" + penaltyName + " == " + Math.abs(_of.value) + ") \/\\ (" + _of.condition + "))" +
-                            "\n\txor ((" + penaltyName + " == " + 0 + ") \/\\ not (" + _of.condition + ")) )";
-                    }
-                });
-                mznPenalConstraints += penaltyCFCs;
-            });
+function agreementValidationErrorToString(error) {
+    let keyword = error.keyword;
+    let dataPath = error.dataPath;
+    let schemaPath = error.schemaPath;
+    let missingProperty = error.params.missingProperty;
+    let message = error.message;
 
-            // CFC for rewards
-            of.rewards.forEach(function (reward) {
-                var rewardName = Object.keys(reward.over)[0];
-                var rewardCFCs = "";
-                reward.of.forEach(function (_of) {
-                    if (_of.value && _of.value !== "" && _of.condition && _of.condition !== "") {
-                        if (rewardCFCs !== "") rewardCFCs += "\n\txor ";
-                        rewardCFCs += "( ((" + rewardName + " == " + Math.abs(_of.value) + ") \/\\ (" + _of.condition + "))" +
-                            "\n\txor ((" + rewardName + " == " + 0 + ") \/\\ not (" + _of.condition + ")) )";
-                    }
-                });
-                mznRewardConstraints += rewardCFCs;
-            });
-        });
-
-        if (mznPenalConstraints !== "" || mznRewardConstraints !== "") {
-            if (ret !== "") ret += "\n";
-            ret += "% CFC for guarantee " + guarantee.id + " \nconstraint " + [mznPenalConstraints, mznRewardConstraints].join("\n\txor ")
-                .replace(/(xor)+/g, "xor").replace(/^xor/, "").replace(/xor$/, "") + ";\n";
-        }
-    });
-
-    return ret;
-
-};
+    return "keyword=" + keyword + ", dataPath=" + dataPath + ", schemaPath=" +
+        schemaPath + ", missingProperty=" + missingProperty + ", message=" + message;
+}

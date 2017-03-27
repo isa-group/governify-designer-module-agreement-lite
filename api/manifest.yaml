@@ -41,6 +41,7 @@ models:
         editorThemeId: ace/theme/yaml
         editorThemeURI: theme-yaml.js
         syntaxCheck: true
+        consistencyCheck: true
       - id: json
         readOnly: false
         editorModeId: ace/mode/json
@@ -48,25 +49,36 @@ models:
         editorThemeId: ace/theme/json
         editorThemeURI: theme-json.js
         syntaxCheck: true
+        consistencyCheck: true
     operations:
-      - id: generateMinizincConstraints
-        name: Generate Minizinc
-        description: Generate Minizinc constraints model.
-        type: createFile
-        config:
-          ext: mzn
-      - id: generateMinizincCFC
-        name: Mzn (CFC)
-        description: Generate Minizinc Compensation Function Constraints model.
-        type: createFile
-        config:
-          ext: mzn
-      - id: generateMinizincCCC
-        name: Mzn (CCC)
-        description: Generate Minizinc Compensation Consistency Constraints model.
-        type: createFile
-        config:
-          ext: mzn
+      - id: checkConstraints
+        name: Check constraints
+        description: Check constraints.
+        type: simple
+      - id: checkCFC
+        name: Check CFC
+        description: Check CFC.
+        type: simple
+      - id: checkCCC
+        name: Check CCC
+        description: Check CCC.
+        type: simple
+      - id: checkCSC
+        name: Check CSC
+        description: Check CSC.
+        type: simple
+      - id: checkGCC
+        name: Check GCC
+        description: Check GCC.
+        type: simple
+      - id: checkOGT
+        name: Check OGT
+        description: Check OGT.
+        type: simple
+      - id: checkOBT
+        name: Check OBT
+        description: Check OBT.
+        type: simple
 #      - id: update
 #        name: Update
 #        description: Delete previous version of this document if exists and load it in Registry.
@@ -75,11 +87,6 @@ models:
 #          modalTitle: Update contract
 #          modalDescription: Select a config file.
 #          filter: cfg
-#      - id: generateOAI
-#        name: Generate OAI
-#        description: Generate OAI model.
-#        type: simple
-#        config: null
   - id: oai-template
     extension: oai-at
     name: OAI Template
