@@ -16,6 +16,10 @@ const CSPTools = require("governify-csp-tools");
 const Reasoner = CSPTools.Reasoner;
 const CSPModelMinizincTranslator = CSPTools.CSPModelMinizincTranslator;
 const annotationErrorFilter = /(.*mzn:.*|MiniZinc:\s+)/g;
+// CSP reasoner remote configuration
+const apiVersion = "v2";
+const apiServer = "https://designer.governify.io:10044/module-minizinc";
+const apiOperation = "models/csp/operations/execute";
 
 module.exports = {
     checkCFC: function (res, data) {
@@ -25,8 +29,13 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "local",
-                folder: "csp_files"
+                type: "remote",
+                folder: "csp_files",
+                api: {
+                    version: apiVersion,
+                    server: apiServer,
+                    operationPath: apiOperation
+                }
             }
         });
 
@@ -46,8 +55,13 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "local",
-                folder: "csp_files"
+                type: "remote",
+                folder: "csp_files",
+                api: {
+                    version: apiVersion,
+                    server: apiServer,
+                    operationPath: apiOperation
+                }
             }
         });
 
@@ -67,8 +81,13 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "local",
-                folder: "csp_files"
+                type: "remote",
+                folder: "csp_files",
+                api: {
+                    version: apiVersion,
+                    server: apiServer,
+                    operationPath: apiOperation
+                }
             }
         });
 
@@ -88,8 +107,13 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "local",
-                folder: "csp_files"
+                type: "remote",
+                folder: "csp_files",
+                api: {
+                    version: apiVersion,
+                    server: apiServer,
+                    operationPath: apiOperation
+                }
             }
         });
 
@@ -109,8 +133,13 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "local",
-                folder: "csp_files"
+                type: "remote",
+                folder: "csp_files",
+                api: {
+                    version: apiVersion,
+                    server: apiServer,
+                    operationPath: apiOperation
+                }
             }
         });
 
@@ -130,8 +159,13 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "local",
-                folder: "csp_files"
+                type: "remote",
+                folder: "csp_files",
+                api: {
+                    version: apiVersion,
+                    server: apiServer,
+                    operationPath: apiOperation
+                }
             }
         });
 
@@ -151,8 +185,13 @@ module.exports = {
                 content: yaml.safeLoad(data[0].content, 'utf8')
             },
             reasoner: {
-                type: "local",
-                folder: "csp_files"
+                type: "remote",
+                folder: "csp_files",
+                api: {
+                    version: apiVersion,
+                    server: apiServer,
+                    operationPath: apiOperation
+                }
             }
         });
 
@@ -183,8 +222,13 @@ module.exports = {
                             content: yaml.safeLoad(data.content, 'utf8')
                         },
                         reasoner: {
-                            type: "local",
-                            folder: "csp_files"
+                            type: "remote",
+                            folder: "csp_files",
+                            api: {
+                                version: apiVersion,
+                                server: apiServer,
+                                operationPath: apiOperation
+                            }
                         }
                     });
 
@@ -226,8 +270,13 @@ module.exports = {
                             content: JSON.parse(data.content)
                         },
                         reasoner: {
-                            type: "local",
-                            folder: "csp_files"
+                            type: "remote",
+                            folder: "csp_files",
+                            api: {
+                                version: apiVersion,
+                                server: apiServer,
+                                operationPath: apiOperation
+                            }
                         }
                     });
 
@@ -483,4 +532,12 @@ function agreementValidationErrorToString(error) {
 
     return "keyword=" + keyword + ", dataPath=" + dataPath + ", schemaPath=" +
         schemaPath + ", missingProperty=" + missingProperty + ", message=" + message;
+}
+
+function isSatisfiable(err, sol) {
+    if (err) {
+        logger.info("Reasoner returned an error:", err);
+    }
+    return (typeof sol === "string" && sol.indexOf("----------") !== -1) ||
+        (typeof sol === "object" && sol.status === "OK" && sol.message.indexOf("----------") !== -1);
 }
