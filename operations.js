@@ -18,7 +18,7 @@ const CSPModelMinizincTranslator = CSPTools.CSPModelMinizincTranslator;
 const annotationErrorFilter = /(.*mzn:.*|MiniZinc:\s+)/g;
 // CSP reasoner remote configuration
 const apiVersion = "v2";
-const apiServer = "https://designer.governify.io:10044/module-minizinc";
+const apiServer = process.env.CSP_TOOLS_REASONER_SERVER;
 const apiOperation = "models/csp/operations/execute";
 
 module.exports = {
