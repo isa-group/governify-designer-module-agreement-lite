@@ -39,7 +39,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableCFC(function (err, stdout, stderr, isSatisfiable) {
+        analyzer.isSatisfiableCFC(function (err, stdout) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "CFC"), data, null));
             } else {
@@ -65,7 +65,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableCCC(function (err, stdout, stderr, isSatisfiable) {
+        analyzer.isSatisfiableCCC(function (err, stdout) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "CCC"), data, null));
             } else {
@@ -91,7 +91,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableCSC(function (err, stdout, stderr, isSatisfiable) {
+        analyzer.isSatisfiableCSC(function (err, stdout) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "CSC"), data, null));
             } else {
@@ -117,7 +117,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableGCC(function (err, stdout, stderr, isSatisfiable) {
+        analyzer.isSatisfiableGCC(function (err, stdout) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "GCC"), data, null));
             } else {
@@ -143,7 +143,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableOGT(function (err, stdout, stderr, isSatisfiable) {
+        analyzer.isSatisfiableOGT(function (err, stdout) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "OGT"), data, null));
             } else {
@@ -169,7 +169,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableOBT(function (err, stdout, stderr, isSatisfiable) {
+        analyzer.isSatisfiableOBT(function (err, stdout) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "OBT"), data, null));
             } else {
@@ -195,7 +195,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable) {
+        analyzer.isSatisfiableConstraints(function (err, stdout) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "constraints"), data, null));
             } else {
@@ -232,7 +232,7 @@ module.exports = {
                         }
                     });
 
-                    analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable) {
+                    analyzer.isSatisfiableConstraints(function (err, stdout) {
                         if (err) {
 
                             var re = /.*\.mzn:([0-9]+):.*/;
@@ -280,7 +280,7 @@ module.exports = {
                         }
                     });
 
-                    analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable) {
+                    analyzer.isSatisfiableConstraints(function (err, stdout) {
                         if (err) {
 
                             var re = /.*\.mzn:([0-9]+):.*/;
