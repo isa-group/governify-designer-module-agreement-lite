@@ -17,9 +17,9 @@ const Reasoner = CSPTools.Reasoner;
 const CSPModelMinizincTranslator = CSPTools.CSPModelMinizincTranslator;
 const annotationErrorFilter = /(.*mzn:.*|MiniZinc:\s+)/g;
 // CSP reasoner remote configuration
-const apiVersion = "v2";
-const apiServer = process.env.CSP_TOOLS_REASONER_SERVER;
-const apiOperation = "models/csp/operations/execute";
+const apiVersion = "v1";
+const apiServer = process.env.CSP_TOOLS_SERVER + "/reasoner";
+const apiOperation = "execute";
 
 module.exports = {
     checkCFC: function (res, data) {
@@ -39,7 +39,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableCFC(function (err, stdout) {
+        analyzer.isSatisfiableCFC(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "CFC"), data, null));
             } else {
@@ -65,7 +65,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableCCC(function (err, stdout) {
+        analyzer.isSatisfiableCCC(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "CCC"), data, null));
             } else {
@@ -91,7 +91,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableCSC(function (err, stdout) {
+        analyzer.isSatisfiableCSC(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "CSC"), data, null));
             } else {
@@ -117,7 +117,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableGCC(function (err, stdout) {
+        analyzer.isSatisfiableGCC(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "GCC"), data, null));
             } else {
@@ -143,7 +143,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableOGT(function (err, stdout) {
+        analyzer.isSatisfiableOGT(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "OGT"), data, null));
             } else {
@@ -169,7 +169,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableOBT(function (err, stdout) {
+        analyzer.isSatisfiableOBT(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "OBT"), data, null));
             } else {
@@ -195,7 +195,7 @@ module.exports = {
             }
         });
 
-        analyzer.isSatisfiableConstraints(function (err, stdout) {
+        analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
                 res.send(new responseModel('OK', cspResponse(err, stdout, "constraints"), data, null));
             } else {
@@ -232,12 +232,17 @@ module.exports = {
                         }
                     });
 
-                    analyzer.isSatisfiableConstraints(function (err, stdout) {
+                    analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable) {
+                        if (typeof stdout === "object") {
+                            stderr = stdout.reasoner.stderr;
+                            err = stdout.reasoner.err;
+                            isSatisfiable = stdout.reasoner.isSatisfiable;
+                            stdout = stdout.reasoner.stdout;
+                        }
                         if (err) {
 
                             var re = /.*\.mzn:([0-9]+):.*/;
                             var annotations = [];
-                            var stderr = stdout; // solution param contains execution error information
                             var errorMsgs = stderr.split(/\r?\n\r?\n/);
 
                             errorMsgs.forEach((errorMsg, index) => {
@@ -280,12 +285,11 @@ module.exports = {
                         }
                     });
 
-                    analyzer.isSatisfiableConstraints(function (err, stdout) {
+                    analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable) {
                         if (err) {
 
                             var re = /.*\.mzn:([0-9]+):.*/;
                             var annotations = [];
-                            var stderr = stdout; // solution param contains execution error information
                             var errorMsgs = stderr.split(/\r?\n\r?\n/);
 
                             errorMsgs.forEach((errorMsg, index) => {
