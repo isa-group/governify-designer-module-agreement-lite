@@ -17,9 +17,9 @@ const Reasoner = CSPTools.Reasoner;
 const CSPModelMinizincTranslator = CSPTools.CSPModelMinizincTranslator;
 const annotationErrorFilter = /(.*mzn:.*|MiniZinc:\s+)/g;
 // CSP reasoner remote configuration
-const apiVersion = "v1";
-const apiServer = process.env.CSP_TOOLS_SERVER + "/reasoner";
-const apiOperation = "execute";
+const apiVersion = process.env.CSP_REASONER_API_VERSION;
+const apiServer = process.env.CSP_REASONER_API_SERVER;
+const apiOperation = process.env.CSP_REASONER_API_OPERATION;
 
 module.exports = {
     checkCFC: function (res, data) {
