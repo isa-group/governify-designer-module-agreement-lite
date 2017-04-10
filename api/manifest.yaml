@@ -61,6 +61,11 @@ models:
         description: Check CFC.
         type: simple
         advanced: true
+      - id: checkVFC
+        name: Check VFC
+        description: Check VFC.
+        type: simple
+        advanced: true
       - id: checkCCC
         name: Check CCC
         description: Check CCC.

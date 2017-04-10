@@ -41,7 +41,33 @@ module.exports = {
 
         analyzer.isSatisfiableCFC(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "CFC"), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Compensation Function Constraint\" (CFC)", isSatisfiable), data, null));
+            } else {
+                res.send(err);
+            }
+        });
+
+    },
+    checkVFC: function (res, data) {
+
+        let analyzer = new AgreementAnalyzer({
+            agreement: {
+                content: yaml.safeLoad(data[0].content, 'utf8')
+            },
+            reasoner: {
+                type: "api",
+                folder: "csp_files",
+                api: {
+                    version: apiVersion,
+                    server: apiServer,
+                    operationPath: apiOperation
+                }
+            }
+        });
+
+        analyzer.isSatisfiableVFC(function (err, stdout, stderr, isSatisfiable) {
+            if (!err) {
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Valid Function Constraint\" (VFC)", isSatisfiable), data, null));
             } else {
                 res.send(err);
             }
@@ -67,7 +93,7 @@ module.exports = {
 
         analyzer.isSatisfiableCCC(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "CCC"), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Compensation Consistency Constraint\" (CCC)", isSatisfiable), data, null));
             } else {
                 res.send(err);
             }
@@ -93,7 +119,7 @@ module.exports = {
 
         analyzer.isSatisfiableCSC(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "CSC"), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Compensation Saturation Constraint\" (CSC)", isSatisfiable), data, null));
             } else {
                 res.send(err);
             }
@@ -119,7 +145,7 @@ module.exports = {
 
         analyzer.isSatisfiableGCC(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "GCC"), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Guarantee Consistency Constraint\" (GCC)", isSatisfiable), data, null));
             } else {
                 res.send(err);
             }
@@ -145,7 +171,7 @@ module.exports = {
 
         analyzer.isSatisfiableOGT(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "OGT"), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Optimal Guarantor Threshold\" (OGT)", isSatisfiable), data, null));
             } else {
                 res.send(err);
             }
@@ -171,7 +197,7 @@ module.exports = {
 
         analyzer.isSatisfiableOBT(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "OBT"), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Optimal Beneficiary Threshold\" (OBT)", isSatisfiable), data, null));
             } else {
                 res.send(err);
             }
@@ -197,7 +223,7 @@ module.exports = {
 
         analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "constraints"), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Constraints\"", isSatisfiable), data, null));
             } else {
                 res.send(err);
             }
@@ -498,12 +524,12 @@ function annotation(type, row, column, text) {
     this.text = text;
 }
 
-function cspResponse(err, stdout, type) {
+function cspResponse(err, stdout, opTitle, isSatisfiable) {
 
     let index = Math.round(Math.random() * 1000);
-    let linkTitle = "details";
+    let linkTitle = "details of execution";
 
-    return "<pre><div>The document has been successfully executed</div><div>" + generateCollapsiblePanel(index, linkTitle, stdout) + "</div></pre>";
+    return "<pre><div>The result of operation " + opTitle + " in the current document is: <strong>" + String(isSatisfiable).toUpperCase() + "</strong></div><div>" + generateCollapsiblePanel(index, linkTitle, stdout) + "</div></pre>";
 
 }
 
