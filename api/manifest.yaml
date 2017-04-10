@@ -55,30 +55,37 @@ models:
         name: Check constraints
         description: Check constraints.
         type: simple
+        advanced: true
       - id: checkCFC
         name: Check CFC
         description: Check CFC.
         type: simple
+        advanced: true
       - id: checkCCC
         name: Check CCC
         description: Check CCC.
         type: simple
+        advanced: true
       - id: checkCSC
         name: Check CSC
         description: Check CSC.
         type: simple
+        advanced: true
       - id: checkGCC
         name: Check GCC
         description: Check GCC.
         type: simple
+        advanced: true
       - id: checkOGT
         name: Check OGT
         description: Check OGT.
         type: simple
+        advanced: true
       - id: checkOBT
         name: Check OBT
         description: Check OBT.
         type: simple
+        advanced: true
 #      - id: update
 #        name: Update
 #        description: Delete previous version of this document if exists and load it in Registry.
