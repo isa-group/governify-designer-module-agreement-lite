@@ -204,32 +204,6 @@ module.exports = {
         });
 
     },
-    checkConstraints: function (res, data) {
-
-        let analyzer = new AgreementAnalyzer({
-            agreement: {
-                content: yaml.safeLoad(data[0].content, 'utf8')
-            },
-            reasoner: {
-                type: "api",
-                folder: "csp_files",
-                api: {
-                    version: apiVersion,
-                    server: apiServer,
-                    operationPath: apiOperation
-                }
-            }
-        });
-
-        analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable) {
-            if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Constraints\"", isSatisfiable), data, null));
-            } else {
-                res.send(err);
-            }
-        });
-
-    },
     checkConsistency: function (syntax, res, data) {
 
         if (data.content === "") {

@@ -51,11 +51,6 @@ models:
         syntaxCheck: true
         consistencyCheck: true
     operations:
-      - id: checkConstraints
-        name: Check constraints
-        description: Check constraints.
-        type: simple
-        advanced: true
       - id: checkCFC
         name: Check CFC
         description: Check CFC.
