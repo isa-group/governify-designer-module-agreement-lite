@@ -5,230 +5,230 @@ var moduleInfo = require('./loadManifest.js').load('package.json');
 var operations = require('../operations.js');
 var fs = require('fs');
 
-exports.apiV2ModelsModelIdSyntaxesGET = function(args, res, next) {
+exports.apiV2ModelsModelIdSyntaxesGET = function (args, res, next) {
   /**
    * parameters expected in the args:
-  * modelId (String)
-  **/
+   * modelId (String)
+   **/
 
-  if(args.modelId) {
+  if (args.modelId) {
     var model = args.modelId.value;
-    if(manifest){
-      for(var m in manifest.models){
-        if(manifest.models[m].id == model){
-          res.json(manifest.models[m].syntaxes);   
+    if (manifest) {
+      for (var m in manifest.models) {
+        if (manifest.models[m].id == model) {
+          res.json(manifest.models[m].syntaxes);
         }
       }
       res.status(404);
-      res.end('Model with id='+ model + ' does not exist.');
-    }else{
+      res.end('Model with id=' + model + ' does not exist.');
+    } else {
       res.status(500);
       res.end('Something fails. It has not been imposible to load manifest.yaml');
     }
 
-  }else {
+  } else {
     res.status(400);
     res.end('{modelId} parameter is required');
   }
-  
+
 }
 
-exports.apiV2ModelsModelIdSyntaxesSyntaxIdCheckPOST = function(args, res, next) {
+exports.apiV2ModelsModelIdSyntaxesSyntaxIdCheckPOST = function (args, res, next) {
   /**
    * parameters expected in the args:
-  * modelId (String)
-  * syntaxId (String)
-  * data (Filedata)
-  **/
-  if(!args.modelId || !args.syntaxId || !args.data) {
+   * modelId (String)
+   * syntaxId (String)
+   * data (Filedata)
+   **/
+  if (!args.modelId || !args.syntaxId || !args.data) {
     res.status(400)
     res.end('All parameters are required');
-  }else {
+  } else {
     var model = null;
-    for(var m in manifest.models){
-      if(manifest.models[m].id == args.modelId.value){
-        model = manifest.models[m];  
+    for (var m in manifest.models) {
+      if (manifest.models[m].id == args.modelId.value) {
+        model = manifest.models[m];
       }
     }
-    if(model){
+    if (model) {
       var syntax = null;
-      for(var s in model.syntaxes){
-        if(model.syntaxes[s].id == args.syntaxId.value){
+      for (var s in model.syntaxes) {
+        if (model.syntaxes[s].id == args.syntaxId.value) {
           syntax = model.syntaxes[s];
         }
       }
-      if(syntax){
-        operations["check"](args.syntaxId.value, res, args.data.value);
-      }else{
+      if (syntax) {
+        operations["check"](args.modelId.value, args.syntaxId.value, res, args.data.value);
+      } else {
         res.status(404);
-        res.end('Model with id='+ args.modelId.value + ' has not syntax with id=' + args.syntaxId.value);    
+        res.end('Model with id=' + args.modelId.value + ' has not syntax with id=' + args.syntaxId.value);
       }
-    }else{
+    } else {
       res.status(404);
-      res.end('Model with id='+ args.modelId.value + ' does not exist.');
+      res.end('Model with id=' + args.modelId.value + ' does not exist.');
     }
-  }  
-  
+  }
+
 }
 
-exports.apiV2ModelsModelIdSyntaxesSyntaxIdGET = function(args, res, next) {
+exports.apiV2ModelsModelIdSyntaxesSyntaxIdGET = function (args, res, next) {
   /**
    * parameters expected in the args:
-  * modelId (String)
-  * syntaxId (String)
-  **/
-   if(args.modelId) {
+   * modelId (String)
+   * syntaxId (String)
+   **/
+  if (args.modelId) {
     var model = args.modelId.value;
-    if(manifest){
-      for(var m in manifest.models){
-        if(manifest.models[m].id == model){
-          if(args.syntaxId){
+    if (manifest) {
+      for (var m in manifest.models) {
+        if (manifest.models[m].id == model) {
+          if (args.syntaxId) {
             var syntax = args.syntaxId.value;
-            for(var s in manifest.models[m].syntaxes){
-              if(manifest.models[m].syntaxes[s].id ==  syntax){
-                 res.json(manifest.models[m].syntaxes[s]); 
+            for (var s in manifest.models[m].syntaxes) {
+              if (manifest.models[m].syntaxes[s].id == syntax) {
+                res.json(manifest.models[m].syntaxes[s]);
               }
-            }  
+            }
             res.status(404);
-            res.end('Model with id='+ args.modelId.value + ' has not syntax with id=' + args.syntaxId.value);             
-          }else{
+            res.end('Model with id=' + args.modelId.value + ' has not syntax with id=' + args.syntaxId.value);
+          } else {
             res.status(400)
             res.end('{syntaxId} parameter is required');
           }
         }
       }
       res.status(404);
-      res.end('Model with id='+ model + ' does not exist.')
-    }else{
+      res.end('Model with id=' + model + ' does not exist.')
+    } else {
       res.status(500);
       res.end('Something fails. It has not been imposible to load manifest.yaml');
     }
 
-  }else {
+  } else {
     res.status(400)
     res.end('{modelId} parameter is required');
   }
-  
-  
-  
+
+
+
 }
 
-exports.apiV2ModelsModelIdSyntaxesSyntaxIdModeGET = function(args, res, next) {
+exports.apiV2ModelsModelIdSyntaxesSyntaxIdModeGET = function (args, res, next) {
   /**
    * parameters expected in the args:
-  * modelId (String)
-  * syntaxId (String)
-  **/
-  
-  
-  if(args.modelId) {
+   * modelId (String)
+   * syntaxId (String)
+   **/
+
+
+  if (args.modelId) {
     var model = args.modelId.value;
-    if(manifest){
-      for(var m in manifest.models){
-        if(manifest.models[m].id == model){
-          if(args.syntaxId){
+    if (manifest) {
+      for (var m in manifest.models) {
+        if (manifest.models[m].id == model) {
+          if (args.syntaxId) {
             var syntax = args.syntaxId.value;
-            for(var s in manifest.models[m].syntaxes){
-              if(manifest.models[m].syntaxes[s].id ==  syntax){
-                  res.setHeader('content-type', 'text/plain;chartset=utf-8');
-                  res.send(fs.readFileSync('modes/' + syntax + '/' + manifest.models[m].syntaxes[s].editorModeURI));
+            for (var s in manifest.models[m].syntaxes) {
+              if (manifest.models[m].syntaxes[s].id == syntax) {
+                res.setHeader('content-type', 'text/plain;chartset=utf-8');
+                res.send(fs.readFileSync('modes/' + syntax + '/' + manifest.models[m].syntaxes[s].editorModeURI));
               }
-            }  
+            }
             res.status(404);
-            res.end('Model with id='+ args.modelId.value + ' has not syntax with id=' + args.syntaxId.value);             
-          }else{
+            res.end('Model with id=' + args.modelId.value + ' has not syntax with id=' + args.syntaxId.value);
+          } else {
             res.status(400)
             res.end('{syntaxId} parameter is required');
           }
         }
       }
       res.status(404);
-      res.end('Model with id='+ model + ' does not exist.')
-    }else{
+      res.end('Model with id=' + model + ' does not exist.')
+    } else {
       res.status(500);
       res.end('Something fails. It has not been imposible to load manifest.yaml');
     }
 
-  }else {
+  } else {
     res.status(400)
     res.end('{modelId} parameter is required');
   }
-  
-  
+
+
 }
 
-exports.apiV2ModelsModelIdSyntaxesSyntaxIdThemeGET = function(args, res, next) {
+exports.apiV2ModelsModelIdSyntaxesSyntaxIdThemeGET = function (args, res, next) {
   /**
    * parameters expected in the args:
-  * modelId (String)
-  * syntaxId (String)
-  **/
-  
-  if(args.modelId) {
+   * modelId (String)
+   * syntaxId (String)
+   **/
+
+  if (args.modelId) {
     var model = args.modelId.value;
-    if(manifest){
-      for(var m in manifest.models){
-        if(manifest.models[m].id == model){
-          if(args.syntaxId){
+    if (manifest) {
+      for (var m in manifest.models) {
+        if (manifest.models[m].id == model) {
+          if (args.syntaxId) {
             var syntax = args.syntaxId.value;
-            for(var s in manifest.models[m].syntaxes){
-              if(manifest.models[m].syntaxes[s].id ==  syntax){
-                  res.setHeader('content-type', 'text/plain;chartset=utf-8');
-                  res.send(fs.readFileSync('modes/' + syntax + '/' + manifest.models[m].syntaxes[s].editorThemeURI));
+            for (var s in manifest.models[m].syntaxes) {
+              if (manifest.models[m].syntaxes[s].id == syntax) {
+                res.setHeader('content-type', 'text/plain;chartset=utf-8');
+                res.send(fs.readFileSync('modes/' + syntax + '/' + manifest.models[m].syntaxes[s].editorThemeURI));
               }
-            }  
+            }
             res.status(404);
-            res.end('Model with id='+ args.modelId.value + ' has not syntax with id=' + args.syntaxId.value);             
-          }else{
+            res.end('Model with id=' + args.modelId.value + ' has not syntax with id=' + args.syntaxId.value);
+          } else {
             res.status(400)
             res.end('{syntaxId} parameter is required');
           }
         }
       }
       res.status(404);
-      res.end('Model with id='+ model + ' does not exist.')
-    }else{
+      res.end('Model with id=' + model + ' does not exist.')
+    } else {
       res.status(500);
       res.end('Something fails. It has not been imposible to load manifest.yaml');
     }
 
-  }else {
+  } else {
     res.status(400)
     res.end('{modelId} parameter is required');
   }
-  
-  
+
+
 }
 
-exports.apiV2ModelsModelIdSyntaxesSyntaxIdTranslatePOST = function(args, res, next) {
+exports.apiV2ModelsModelIdSyntaxesSyntaxIdTranslatePOST = function (args, res, next) {
   /**
    * parameters expected in the args:
-  * modelId (String)
-  * srcSyntaxId (String)
-  * desSyntaxId (String)
-  * data (Filedata)
-  **/
-  
-  if(args.modelId) {
-    if(manifest){
+   * modelId (String)
+   * srcSyntaxId (String)
+   * desSyntaxId (String)
+   * data (Filedata)
+   **/
+
+  if (args.modelId) {
+    if (manifest) {
       var model = null
-      for(var m in manifest.models){
-        if(manifest.models[m].id == args.modelId.value){
-           model = manifest.models[m];
+      for (var m in manifest.models) {
+        if (manifest.models[m].id == args.modelId.value) {
+          model = manifest.models[m];
         }
       }
-      if( model){
-        operations["translate"](args.srcSyntaxId.value, args.desSyntaxId.value, res, args.data.value );
-      }else{
+      if (model) {
+        operations["translate"](args.srcSyntaxId.value, args.desSyntaxId.value, res, args.data.value);
+      } else {
         res.status(404);
-        res.end('Model with id='+ args.modelId.value + ' does not exist'); 
+        res.end('Model with id=' + args.modelId.value + ' does not exist');
       }
-    }else{
+    } else {
       res.status(500);
       res.end('Something fails. It has not been imposible to load manifest.yaml');
     }
 
-  }else{
+  } else {
     res.status(400)
     res.end('{modelId} parameter is required');
   }
@@ -236,11 +236,11 @@ exports.apiV2ModelsModelIdSyntaxesSyntaxIdTranslatePOST = function(args, res, ne
 }
 
 
-function modelHasSyntax (model, syntax){
+function modelHasSyntax(model, syntax) {
   var ret = false;
-  for(var s in model.syntaxes){
-    if(model.syntaxes[s].id == syntax)
-      ret=true;
+  for (var s in model.syntaxes) {
+    if (model.syntaxes[s].id == syntax)
+      ret = true;
   }
   return ret;
 }

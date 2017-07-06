@@ -8,40 +8,25 @@ var request = require('request');
 var fs = require('fs');
 var path = require('path');
 // Agreement Analyzer
+// const AgreementAnalyzer = require("governify-agreement-analyzer");
 const AgreementAnalyzer = require("governify-agreement-analyzer");
 const AgreementModel = AgreementAnalyzer.AgreementModel;
-const AgreementCompensationCSPModelBuilder = AgreementAnalyzer.AgreementCompensationCSPModelBuilder;
 // CSP Tools
-const CSPTools = require("governify-csp-tools");
-const Reasoner = CSPTools.Reasoner;
-const CSPModelMinizincTranslator = CSPTools.CSPModelMinizincTranslator;
 const annotationErrorFilter = /(.*mzn:.*|MiniZinc:\s+)/g;
 // CSP reasoner remote configuration
 const apiVersion = process.env.CSP_REASONER_API_VERSION;
 const apiServer = process.env.CSP_REASONER_API_SERVER;
 const apiOperation = process.env.CSP_REASONER_API_OPERATION;
+// Agreement-lite
+const SAMPLE_AGREEMENT_TITLE = "Sample_agreement_title";
 
 module.exports = {
     checkCFC: function (res, data) {
 
-        let analyzer = new AgreementAnalyzer({
-            agreement: {
-                content: yaml.safeLoad(data[0].content, 'utf8')
-            },
-            reasoner: {
-                type: "api",
-                folder: "csp_files",
-                api: {
-                    version: apiVersion,
-                    server: apiServer,
-                    operationPath: apiOperation
-                }
-            }
-        });
-
-        analyzer.isSatisfiableCFC(function (err, stdout, stderr, isSatisfiable) {
+        let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
+        analyzer.isSatisfiableCFC(function (err, stdout, stderr, isSatisfiable, document) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Compensation Function Constraint\" (CFC)", isSatisfiable), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Compensation Function Constraint\" (CFC)", isSatisfiable, document), data, null));
             } else {
                 res.send(err);
             }
@@ -50,24 +35,10 @@ module.exports = {
     },
     checkVFC: function (res, data) {
 
-        let analyzer = new AgreementAnalyzer({
-            agreement: {
-                content: yaml.safeLoad(data[0].content, 'utf8')
-            },
-            reasoner: {
-                type: "api",
-                folder: "csp_files",
-                api: {
-                    version: apiVersion,
-                    server: apiServer,
-                    operationPath: apiOperation
-                }
-            }
-        });
-
-        analyzer.isSatisfiableVFC(function (err, stdout, stderr, isSatisfiable) {
+        let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
+        analyzer.isSatisfiableVFC(function (err, stdout, stderr, isSatisfiable, document) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Valid Function Constraint\" (VFC)", isSatisfiable), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Valid Function Constraint\" (VFC)", isSatisfiable, document), data, null));
             } else {
                 res.send(err);
             }
@@ -76,24 +47,10 @@ module.exports = {
     },
     checkCCC: function (res, data) {
 
-        let analyzer = new AgreementAnalyzer({
-            agreement: {
-                content: yaml.safeLoad(data[0].content, 'utf8')
-            },
-            reasoner: {
-                type: "api",
-                folder: "csp_files",
-                api: {
-                    version: apiVersion,
-                    server: apiServer,
-                    operationPath: apiOperation
-                }
-            }
-        });
-
-        analyzer.isSatisfiableCCC(function (err, stdout, stderr, isSatisfiable) {
+        let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
+        analyzer.isSatisfiableCCC(function (err, stdout, stderr, isSatisfiable, document) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Compensation Consistency Constraint\" (CCC)", isSatisfiable), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Compensation Consistency Constraint\" (CCC)", isSatisfiable, document), data, null));
             } else {
                 res.send(err);
             }
@@ -102,24 +59,10 @@ module.exports = {
     },
     checkCSC: function (res, data) {
 
-        let analyzer = new AgreementAnalyzer({
-            agreement: {
-                content: yaml.safeLoad(data[0].content, 'utf8')
-            },
-            reasoner: {
-                type: "api",
-                folder: "csp_files",
-                api: {
-                    version: apiVersion,
-                    server: apiServer,
-                    operationPath: apiOperation
-                }
-            }
-        });
-
-        analyzer.isSatisfiableCSC(function (err, stdout, stderr, isSatisfiable) {
+        let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
+        analyzer.isSatisfiableCSC(function (err, stdout, stderr, isSatisfiable, document) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Compensation Saturation Constraint\" (CSC)", isSatisfiable), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Compensation Saturation Constraint\" (CSC)", isSatisfiable, document), data, null));
             } else {
                 res.send(err);
             }
@@ -128,24 +71,10 @@ module.exports = {
     },
     checkGCC: function (res, data) {
 
-        let analyzer = new AgreementAnalyzer({
-            agreement: {
-                content: yaml.safeLoad(data[0].content, 'utf8')
-            },
-            reasoner: {
-                type: "api",
-                folder: "csp_files",
-                api: {
-                    version: apiVersion,
-                    server: apiServer,
-                    operationPath: apiOperation
-                }
-            }
-        });
-
-        analyzer.isSatisfiableGCC(function (err, stdout, stderr, isSatisfiable) {
+        let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
+        analyzer.isSatisfiableGCC(function (err, stdout, stderr, isSatisfiable, document) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Guarantee Consistency Constraint\" (GCC)", isSatisfiable), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Guarantee Consistency Constraint\" (GCC)", isSatisfiable, document), data, null));
             } else {
                 res.send(err);
             }
@@ -154,50 +83,21 @@ module.exports = {
     },
     checkOGT: function (res, data) {
 
-        let analyzer = new AgreementAnalyzer({
-            agreement: {
-                content: yaml.safeLoad(data[0].content, 'utf8')
-            },
-            reasoner: {
-                type: "api",
-                folder: "csp_files",
-                api: {
-                    version: apiVersion,
-                    server: apiServer,
-                    operationPath: apiOperation
-                }
-            }
-        });
-
-        analyzer.isSatisfiableOGT(function (err, stdout, stderr, isSatisfiable) {
+        let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
+        analyzer.isSatisfiableOGT(function (err, stdout, stderr, isSatisfiable, document) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Optimal Guarantor Threshold\" (OGT)", isSatisfiable), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Optimal Guarantor Threshold\" (OGT)", isSatisfiable, document), data, null));
             } else {
                 res.send(err);
             }
         });
-
     },
     checkOBT: function (res, data) {
 
-        let analyzer = new AgreementAnalyzer({
-            agreement: {
-                content: yaml.safeLoad(data[0].content, 'utf8')
-            },
-            reasoner: {
-                type: "api",
-                folder: "csp_files",
-                api: {
-                    version: apiVersion,
-                    server: apiServer,
-                    operationPath: apiOperation
-                }
-            }
-        });
-
-        analyzer.isSatisfiableOBT(function (err, stdout, stderr, isSatisfiable) {
+        let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
+        analyzer.isSatisfiableOBT(function (err, stdout, stderr, isSatisfiable, document) {
             if (!err) {
-                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Optimal Beneficiary Threshold\" (OBT)", isSatisfiable), data, null));
+                res.send(new responseModel('OK', cspResponse(err, stdout, "\"Optimal Beneficiary Threshold\" (OBT)", isSatisfiable, document), data, null));
             } else {
                 res.send(err);
             }
@@ -206,116 +106,39 @@ module.exports = {
     },
     checkConsistency: function (syntax, res, data) {
 
-        if (data.content === "") {
+        try {
 
-            // Nothing to do
-            res.json(new responseModel('OK', null, null, null));
+            if (data.content === "") {
 
-        } else {
+                // Nothing to do
+                res.json(new responseModel('OK', null, null, null));
 
-            switch (syntax) {
+            } else {
 
-                case 'yaml':
+                switch (syntax) {
 
-                    var analyzer = new AgreementAnalyzer({
-                        agreement: {
-                            content: yaml.safeLoad(data.content, 'utf8')
-                        },
-                        reasoner: {
-                            type: "api",
-                            folder: "csp_files",
-                            api: {
-                                version: apiVersion,
-                                server: apiServer,
-                                operationPath: apiOperation
-                            }
-                        }
-                    });
+                    case 'yaml':
+                        _checkConsistency(yaml.safeLoad(data.content, 'utf8'), res);
+                        break;
 
-                    analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable) {
-                        if (typeof stdout === "object") {
-                            stderr = stdout.reasoner.stderr;
-                            err = stdout.reasoner.err;
-                            isSatisfiable = stdout.reasoner.isSatisfiable;
-                            stdout = stdout.reasoner.stdout;
-                        }
-                        if (err) {
+                    case 'json':
+                        _checkConsistency(JSON.parse(data.content), res);
+                        break;
 
-                            var re = /.*\.mzn:([0-9]+):.*/;
-                            var annotations = [];
-                            var errorMsgs = stderr.split(/\r?\n\r?\n/);
+                }
 
-                            errorMsgs.forEach((errorMsg, index) => {
-                                let e = errorMsg.replace(annotationErrorFilter, "").trim();
-                                if (index === 0) e = "CSP execution error:\n" + e;
-                                annotations.push(new annotation('error', 0, 0, e));
-                            });
-
-                            if (annotations.length > 0) {
-                                res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
-                            } else {
-                                res.json(new responseModel('OK_PROBLEMS', null, null, [new annotation('error', 0, 0, stderr ?
-                                    "CSP execution error: " + stderr.replace(annotationErrorFilter, "").trim() :
-                                    (typeof error === "object" && error.message) ? "CSP execution error: " + error.message.replace(annotationErrorFilter, "").trim() : "")]));
-                            }
-
-                        } else if (stdout.indexOf("=====UNSATISFIABLE=====" === -1)) {
-                            res.json(new responseModel('OK', null, null, null));
-                        } else {
-                            res.json(new responseModel('OK_PROBLEMS', null, null, [new annotation('error', 0, 0, stdout)]));
-                        }
-                    });
-
-                    break;
-
-                case 'json':
-
-                    var analyzer = new AgreementAnalyzer({
-                        agreement: {
-                            content: JSON.parse(data.content)
-                        },
-                        reasoner: {
-                            type: "api",
-                            folder: "csp_files",
-                            api: {
-                                version: apiVersion,
-                                server: apiServer,
-                                operationPath: apiOperation
-                            }
-                        }
-                    });
-
-                    analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable) {
-                        if (err) {
-
-                            var re = /.*\.mzn:([0-9]+):.*/;
-                            var annotations = [];
-                            var errorMsgs = stderr.split(/\r?\n\r?\n/);
-
-                            errorMsgs.forEach((errorMsg, index) => {
-                                annotations.push(new annotation('error', 0, 0, errorMsg.replace(annotationErrorFilter, "").trim()));
-                            });
-
-                            if (annotations.length > 0) {
-                                res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
-                            } else {
-                                res.json(new responseModel('OK_PROBLEMS', null, null, [new annotation('error', 0, 0, stderr ?
-                                    stderr.replace(annotationErrorFilter, "").trim() :
-                                    (typeof error === "object" && error.message) ? error.message.replace(annotationErrorFilter, "").trim() : "")]));
-                            }
-
-                        } else {
-                            res.json(new responseModel('OK', null, null, null));
-                        }
-                    });
-
-                    break;
             }
 
+        } catch (err) {
+            console.error(err);
+            let msg = (typeof err === "object") && err.message ? err.message : err;
+            let annotations = [new annotation('error', 0, 0, msg)];
+            res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
         }
 
     },
     generateGovernify: function (res, data) {
+
         mapper.convertString(data[0].content, (dataResponse) => {
 
             res.send(new responseModel('OK', "The document has been generated successfully", dataResponse, null));
@@ -329,54 +152,112 @@ module.exports = {
             }
 
         });
+
     },
-    check: function (syntax, res, data) {
-        switch (syntax) {
-            case 'json':
-                try {
+    check: function (modelId, syntax, res, data) {
 
-                    let agreement = jsonlint.parse(data.content);
-                    var model = new AgreementModel(agreement);
-                    let isValid = model.validate();
+        if (modelId === "agreement") {
 
-                    if (isValid) {
+            this.checkAgreement(modelId, syntax, res, data);
+
+        } else {
+
+            switch (syntax) {
+
+                case 'json':
+
+                    try {
+                        jsonlint.parse(data.content);
                         res.json(new responseModel('OK', null, null, null));
-                    } else {
-                        let annotations = [new annotation('error', 0, 0, agreementValidationErrorToString(model.validationErrors[0]))];
+                    } catch (e) {
+                        var row = e.toString().split("line ")[1].split(":")[0];
+                        var annotations = [new annotation('error', parseInt(row) - 1 + '', '1', e.toString())]
                         res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
                     }
 
-                } catch (e) {
-                    var row = e.toString().split("line ")[1].split(":")[0];
-                    var annotations = [new annotation('error', parseInt(row) - 1 + '', '1', e.toString())]
-                    res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
-                }
-                break;
-            case 'yaml':
-                try {
+                    break;
 
-                    let agreement = yaml.safeLoad(data.content, 'utf8');
-                    var model = new AgreementModel(agreement);
-                    let isValid = model.validate();
+                case 'yaml':
 
-                    if (isValid) {
+                    try {
+                        yaml.safeLoad(data.content, 'utf8');
                         res.json(new responseModel('OK', null, null, null));
-                    } else {
-                        let annotations = [new annotation('error', 0, 0, agreementValidationErrorToString(model.validationErrors[0]))];
+                    } catch (e) {
+                        var annotations = [new annotation('error', e.mark.line, e.mark.column, e.reason)];
                         res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
                     }
 
-                } catch (e) {
-                    var annotations = [new annotation('error', e.mark.line, e.mark.column, e.reason)];
-                    res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
-                }
-                break;
+                    break;
+
+            }
+        }
+
+    },
+    checkAgreement: function (modelId, syntax, res, data) {
+
+        if (data.content === "") {
+
+            // Nothing to do
+            res.json(new responseModel('OK', null, null, null));
+
+        } else {
+
+            switch (syntax) {
+
+                case 'json':
+
+                    try {
+
+                        let agreement = jsonlint.parse(data.content);
+                        var model = new AgreementModel(agreement);
+                        let isValid = model.validate();
+
+                        if (isValid) {
+                            res.json(new responseModel('OK', null, null, null));
+                        } else {
+                            let annotations = [new annotation('error', 0, 0, agreementValidationErrorToString(model.validationErrors[0]))];
+                            res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+                        }
+
+                    } catch (e) {
+                        var row = e.toString().split("line ")[1].split(":")[0];
+                        var annotations = [new annotation('error', parseInt(row) - 1 + '', '1', e.toString())]
+                        res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+                    }
+
+                    break;
+
+                case 'yaml':
+
+                    try {
+
+                        let agreement = yaml.safeLoad(data.content, 'utf8');
+                        var model = new AgreementModel(agreement);
+                        let isValid = model.validate();
+
+                        if (isValid) {
+                            res.json(new responseModel('OK', null, null, null));
+                        } else {
+                            let annotations = [new annotation('error', 0, 0, agreementValidationErrorToString(model.validationErrors[0]))];
+                            res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+                        }
+
+                    } catch (e) {
+                        var annotations = [new annotation('error', e.mark.line, e.mark.column, e.reason)];
+                        res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+                    }
+
+                    break;
+
+            }
         }
     },
     translate: function (syntaxSrc, syntaxDes, res, data) {
 
         switch (syntaxSrc) {
+
             case 'json':
+
                 if (syntaxDes != 'yaml') {
 
                     translateCombinationError(res, syntaxDes);
@@ -387,8 +268,11 @@ module.exports = {
                     res.json(new responseModel('OK', 'The content has been translated', yaml.safeDump(dataObject), []));
 
                 }
+
                 break;
+
             case 'yaml':
+
                 if (syntaxDes != 'json') {
 
                     translateCombinationError(res, syntaxDes);
@@ -399,7 +283,9 @@ module.exports = {
                     res.json(new responseModel('OK', 'The content has been translated', JSON.stringify(dataObject, null, 2), []));
 
                 }
+
                 break;
+
             default:
                 res.json(new responseModel('ERROR', "It is not possible to translate from " + syntaxSrc + " to " + syntaxDes, null, []));
         }
@@ -498,12 +384,13 @@ function annotation(type, row, column, text) {
     this.text = text;
 }
 
-function cspResponse(err, stdout, opTitle, isSatisfiable) {
+function cspResponse(err, stdout, opTitle, isSatisfiable, document) {
 
     let index = Math.round(Math.random() * 1000);
     let linkTitle = "details of execution";
 
-    return "<pre><div>The result of operation " + opTitle + " in the current document is: <strong>" + String(isSatisfiable).toUpperCase() + "</strong></div><div>" + generateCollapsiblePanel(index, linkTitle, stdout) + "</div></pre>";
+    return '<pre><div>The result of operation ' + opTitle + ' in the current document is: <strong>' + String(isSatisfiable).toUpperCase() +
+        '</strong></div><div>' + generateCollapsiblePanel(index, linkTitle, stdout + "\n" + document) + '</div></pre>';
 
 }
 
@@ -545,3 +432,81 @@ function isSatisfiable(err, sol) {
     return (typeof sol === "string" && sol.indexOf("----------") !== -1) ||
         (typeof sol === "object" && sol.status === "OK" && sol.message.indexOf("----------") !== -1);
 }
+
+let _initAnalyzer = (model) => {
+
+    return new AgreementAnalyzer({
+        agreement: {
+            content: model
+        },
+        reasoner: {
+            type: "api",
+            folder: "csp_files",
+            api: {
+                version: apiVersion,
+                server: apiServer,
+                operationPath: apiOperation
+            }
+        }
+    });
+
+};
+
+let _checkConsistency = (model, res) => {
+
+    if (model.id === SAMPLE_AGREEMENT_TITLE) {
+        res.json(new responseModel('OK', null, null, null));
+        return;
+    }
+
+    let analyzer = _initAnalyzer(model);
+    analyzer.isSatisfiableConstraints(function (err, stdout, stderr, isSatisfiable, document) {
+
+        if (typeof stdout === "object") {
+            stderr = stdout.reasoner.stderr;
+            err = stdout.reasoner.err;
+            isSatisfiable = stdout.reasoner.isSatisfiable;
+            stdout = stdout.reasoner.stdout;
+            document = stdout.reasoner.cspFileContent;
+        }
+
+        if (err && typeof err === "object") {
+
+            var re = /.*\.mzn:([0-9]+):.*/;
+            var annotations = [];
+            var errorMsgs = stderr.split(/\r?\n\r?\n/);
+
+            if (errorMsgs) {
+                errorMsgs.forEach((errorMsg, index) => {
+                    let e = errorMsg.replace(annotationErrorFilter, "").trim();
+                    if (index === 0) e = "CSP execution error:\n" + e;
+                    annotations.push(new annotation('error', 0, 0, e));
+                });
+
+                if (annotations.length > 0) {
+                    res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+                } else {
+                    res.json(new responseModel('OK_PROBLEMS', null, null, [new annotation('error', 0, 0, stderr ?
+                        "CSP " + stderr.replace(annotationErrorFilter, "").trim() :
+                        (typeof error === "object" && error.message) ? "CSP " + error.message.replace(annotationErrorFilter, "").trim() : "")]));
+                }
+
+            } else {
+                annotations.push(new annotation('error', 0, 0, err));
+                res.json(new responseModel('OK_PROBLEMS', null, null, annotations));
+            }
+
+        } else if (err && typeof err === "string") {
+            // Consider a mask error message from server, i.e. error 500.
+            res.json(new responseModel('OK_PROBLEMS', null, null, [new annotation('error', 0, 0, err)]));
+        } else if (stdout.indexOf("=====UNSATISFIABLE=====") === -1) {
+            res.json(new responseModel('OK', null, null, null));
+        } else {
+            res.json(new responseModel('OK_PROBLEMS', null, null, [new annotation('error', 0, 0, stdout)]));
+        }
+
+        return;
+
+    });
+
+};

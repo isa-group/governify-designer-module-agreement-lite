@@ -137,10 +137,10 @@ models:
         editorThemeId: ace/theme/json
         editorThemeURI: theme-json.js
         syntaxCheck: true
-    operations:
-      - id: generateGovernify
-        name: Generate Governify
-        description: Generate Governify model.
-        type: createFile
-        config:
-          ext: ag
+    operations: []
+      # - id: generateGovernify
+      #   name: Generate Governify
+      #   description: Generate Governify model.
+      #   type: createFile
+      #   config:
+      #     ext: ag

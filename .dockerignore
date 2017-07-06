@@ -1,0 +1,6 @@
+node_modules/
+csp_files/
+.vscode/launch.json
+.git
+.gitignore
+npm-debug.log
