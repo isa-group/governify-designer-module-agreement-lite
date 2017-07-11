@@ -365,8 +365,10 @@ function cspResponse(err, stdout, opTitle, isSatisfiable, document) {
         return '<pre><div>The result of operation ' + opTitle + ' in the current document is: <strong>' + String(isSatisfiable).toUpperCase() +
             '</strong></div><div>' + generateCollapsiblePanel(index, linkTitle, stdout + "\n" + document) + '</div></pre>';
     } else {
+        let errMsg = err && typeof err === "object" && typeof err.message ? err.message : err;
+        let detailMsg = document ? document : errMsg;
         return '<pre><div style="color:red;">There was an error executing ' + opTitle + ' operation</strong></div><div>' +
-            generateCollapsiblePanel(index, linkTitle, document) + '</div></pre>';
+            generateCollapsiblePanel(index, linkTitle, detailMsg) + '</div></pre>';
     }
 
 
