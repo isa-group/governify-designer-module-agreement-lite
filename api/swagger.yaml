@@ -6,7 +6,7 @@ info:
     \ operations as consistency, compliance, dead terms, etc."
   version: "1.0.0"
   title: "Agreement Module"
-basePath: "/module-agreement-lite"
+basePath: "/"
 schemes:
 - "https"
 produces:
