@@ -12,18 +12,23 @@ var port = (process.env.PORT || 10080);
 var securePort = (process.env.SECURE_PORT || 10043);
 var app = express();
 
-app.enable('trust proxy');
+// Bypassing 405 status put by swagger when no request handler is defined
+app.options("/*", (req, res, next) => {
+  return res.sendStatus(200);
+});
+
+// app.enable('trust proxy');
 app.use(bodyParser.json());
 
-app.use(function (req, res, next) {
-  if (req.secure) {
-    // request was via https, so do no special handling
-    next();
-  } else {
-    // request was via http, so redirect to https
-    res.redirect('https://' + req.headers.host.split(':')[0] + ':' + securePort + req.url);
-  }
-});
+// app.use(function (req, res, next) {
+//   if (req.secure) {
+//     // request was via https, so do no special handling
+//     next();
+//   } else {
+//     // request was via http, so redirect to https
+//     res.redirect('https://' + req.headers.host.split(':')[0] + ':' + securePort + req.url);
+//   }
+// });
 
 // swaggerRouter configuration
 var options = {
@@ -51,15 +56,16 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
   app.use(middleware.swaggerUi());
 
   // Start the server
-  https.createServer({
-    key: fs.readFileSync('certs/privkey.pem'),
-    cert: fs.readFileSync('certs/cert.pem')
-  }, app).listen(securePort, function () {
-    console.log('Your module is listening on port %d (https://localhost:%d)', securePort, securePort);
-    console.log('Swagger-ui is available on https://localhost:%d/docs', securePort);
-  });
+  // https.createServer({
+  //   key: fs.readFileSync('certs/privkey.pem'),
+  //   cert: fs.readFileSync('certs/cert.pem')
+  // }, app).listen(securePort, function () {
+  //   console.log('Your module is listening on port %d (https://localhost:%d)', securePort, securePort);
+  //   console.log('Swagger-ui is available on https://localhost:%d/docs', securePort);
+  // });
 
   http.createServer(app).listen(port, function () {
-    console.log('Redirect port from %d to %d (http://localhost:%d)', port, securePort, port);
+    // console.log('Redirect port from %d to %d (http://localhost:%d)', port, securePort, port);
+    console.log('Your module is listening on port %d (https://localhost:%d)', port, port);
   });
 });
