@@ -51,41 +51,61 @@ models:
         syntaxCheck: true
         consistencyCheck: true
     operations:
-      - id: checkCFC
-        name: Check CFC
-        description: Check CFC.
+      - id: mapCompensations
+        name: Check Compensations
+        description: Check if all compensations are valid.
         type: simple
-        advanced: true
-      - id: checkVFC
-        name: Check VFC
-        description: Check VFC.
+        advanced: false
+        visibility: primary
+      - id: mapCCF
+        name: OP1 - Check Consistency of Compensable Function (Property 1)
+        description: mapCCF.
         type: simple
-        advanced: true
-      - id: checkCCC
-        name: Check CCC
-        description: Check CCC.
+        advanced: false
+        visibility: secondary
+        group: Compensation Analysis
+      - id: mapSCF
+        name: OP2 - Check Saturation of Compensable Function (Property 2)
+        description: mapSCF.
         type: simple
-        advanced: true
-      - id: checkCSC
-        name: Check CSC
-        description: Check CSC.
+        advanced: false
+        visibility: secondary
+        group: Compensation Analysis
+      - id: mapVCF
+        name: OP3 - Check Validity of Compensable Function (Property 3)
+        description: mapVCF.
         type: simple
-        advanced: true
-      - id: checkGCC
-        name: Check GCC
-        description: Check GCC.
+        advanced: false
+        visibility: secondary
+        group: Compensation Analysis
+      - id: mapCCG
+        name: OP4 - Check Consistency of Compensable Guarantee (Property 4)
+        description: mapCCG.
         type: simple
-        advanced: true
-      - id: checkOGT
-        name: Check OGT
-        description: Check OGT.
+        advanced: false
+        visibility: secondary
+        group: Compensation Analysis
+      - id: mapVCG
+        name: OP5 - Check Validity of Compensable Guarantee (Property 5)
+        description: mapVCG.
         type: simple
-        advanced: true
-      - id: checkOBT
-        name: Check OBT
-        description: Check OBT.
+        advanced: false
+        visibility: secondary
+        group: Compensation Analysis
+      - id: mapThBen
+        name: OP6 - Obtain optimal threshold for Beneficiary
+        description: mapThBen.
         type: simple
-        advanced: true
+        advanced: false
+        visibility: secondary
+        group: Compensation Analysis
+      - id: mapThGtor
+        name: OP7 - Obtain optimal threshold for Garantor
+        description: mapThGtor.
+        type: simple
+        advanced: false
+        visibility: secondary
+        group: Compensation Analysis
 #      - id: update
 #        name: Update
 #        description: Delete previous version of this document if exists and load it in Registry.

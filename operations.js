@@ -8,7 +8,6 @@ var request = require('request');
 var fs = require('fs');
 var path = require('path');
 // Agreement Analyzer
-// const AgreementAnalyzer = require("governify-agreement-analyzer");
 const AgreementAnalyzer = require("governify-agreement-analyzer");
 const AgreementModel = AgreementAnalyzer.AgreementModel;
 // CSP Tools
@@ -21,58 +20,290 @@ const apiOperation = process.env.CSP_REASONER_API_OPERATION;
 const SAMPLE_AGREEMENT_TITLE = "Sample_agreement_title";
 
 module.exports = {
-    checkCFC: function (res, data) {
+    mapCompensations: function (res, data) {
+        this.mapCompensations(res, data);
+    },
+    mapVCG: function (res, data) {
 
         let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
-        analyzer.isSatisfiableCFC(function (err, stdout, stderr, isSatisfiable, document) {
-            res.send(new responseModel('OK', cspResponse(err, stdout, "\"Compensation Function Constraint\" (CFC)", isSatisfiable, document), data, null));
+        var accVCG = true;
+
+        // Execute CCG
+        this.mapCCG(res, data, (err, stdout, stderr, isSatisfiable, documentCCG) => {
+            if (err) {
+                res.send(new responseModel('OK', getErrorMessage(err, documentCCG, "Compensable Guarantee"), data, null));
+            } else {
+                accVCG = accVCG && isSatisfiable === false;
+                // Execute SCF
+                this.mapSCF(res, data, (err, stdout, stderr, isSatisfiable, documentSCF) => {
+                    if (err) {
+                        res.send(new responseModel('OK', getErrorMessage(err, documentSCF, "Compensable Function"), data, null));
+                    } else {
+                        accVCG = accVCG && isSatisfiable === false;
+                        // Execute CCF
+                        this.mapCCF(res, data, (err, stdout, stderr, isSatisfiable, documentCCF) => {
+                            if (err) {
+                                res.send(new responseModel('OK', getErrorMessage(err, documentCCF, "Consistency of Compensable Function"), data, null));
+                            } else {
+
+                                // Build response to user based on the results of the previous operations.
+                                accVCG = accVCG && isSatisfiable === false;
+
+                                var validTxt = accVCG ?
+                                    '<strong style="color: green;">VALID</strong>' :
+                                    '<strong style="color: red;">INVALID</strong>';
+
+                                let msg = '<pre><div>The Compensable Guarantee is ' + validTxt + '</div></pre>';
+                                res.send(new responseModel('OK', msg, data, null));
+
+                            }
+                        });
+                    }
+                });
+            }
         });
 
     },
-    checkVFC: function (res, data) {
+    mapVCF: function (res, data) {
 
         let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
-        analyzer.isSatisfiableVFC(function (err, stdout, stderr, isSatisfiable, document) {
-            res.send(new responseModel('OK', cspResponse(err, stdout, "\"Valid Function Constraint\" (VFC)", isSatisfiable, document), data, null));
+        var accVCF = true;
+
+        // Execute SCF
+        this.mapSCF(res, data, (err, stdout, stderr, isSatisfiable, documentSCF) => {
+            if (err) {
+                res.send(new responseModel('OK', getErrorMessage(err, documentSCF, "Compensable Function"), data, null));
+            } else {
+                accVCF = accVCF && isSatisfiable === false;
+                // Execute CCF
+                this.mapCCF(res, data, (err, stdout, stderr, isSatisfiable, documentCCF) => {
+                    if (err) {
+                        res.send(new responseModel('OK', getErrorMessage(err, documentCCF, "Consistency of Compensable Function"), data, null));
+                    } else {
+
+                        // Build response to user based on the results of the previous operations.
+                        accVCF = accVCF && isSatisfiable === false;
+
+                        var validTxt = accVCF ?
+                            '<strong style="color: green;">VALID</strong>' :
+                            '<strong style="color: red;">INVALID</strong>';
+
+                        let msg = '<pre><div>The Compensable Guarantee is ' + validTxt + '</div></pre>';
+                        res.send(new responseModel('OK', msg, data, null));
+
+                    }
+                });
+            }
         });
 
     },
-    checkCCC: function (res, data) {
+    mapCCF: function (res, data, callback) {
 
         let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
         analyzer.isSatisfiableCCC(function (err, stdout, stderr, isSatisfiable, document) {
-            res.send(new responseModel('OK', cspResponse(err, stdout, "\"Compensation Consistency Constraint\" (CCC)", isSatisfiable, document), data, null));
+
+            var msg = "";
+            let index = Math.round(Math.random() * 1000);
+            let linkTitle = "CSP mapping";
+            let opTitle = "Consistency of Compensable Function";
+
+            if (err) {
+                let errMsg = err && typeof err === "object" && typeof err.message ? err.message : err;
+                let detailMsg = document ? document : errMsg;
+                msg += '<pre><div style="color:red;">There was an error executing ' + opTitle + ' operation</div><div>' +
+                    generateCollapsiblePanel(index, linkTitle, detailMsg) + '</div></pre>';
+            } else {
+                var validTxt = "";
+                if (!isSatisfiable) {
+                    validTxt += '<strong style="color: green;">CONSISTENT</strong>';
+                } else {
+                    validTxt += '<strong style="color: red;">NOT CONSISTENT</strong>';
+                }
+                msg += '<pre><div>The Compensable Function is ' + validTxt + '</div><div>' +
+                    generateCollapsiblePanel(index, linkTitle, stdout + "\n" + document) + '</div></pre>';
+
+            }
+
+            if (callback) {
+                callback(err, stdout, stderr, isSatisfiable, document);
+            } else {
+                res.send(new responseModel('OK', msg, data, null));
+            }
+
         });
 
     },
-    checkCSC: function (res, data) {
+    mapSCF: function (res, data, callback) {
 
         let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
         analyzer.isSatisfiableCSC(function (err, stdout, stderr, isSatisfiable, document) {
-            res.send(new responseModel('OK', cspResponse(err, stdout, "\"Compensation Saturation Constraint\" (CSC)", isSatisfiable, document), data, null));
+
+            var msg = "";
+            let index = Math.round(Math.random() * 1000);
+            let linkTitle = "CSP mapping";
+            let opTitle = "Compensable Function";
+
+            if (err) {
+                let errMsg = err && typeof err === "object" && typeof err.message ? err.message : err;
+                let detailMsg = document ? document : errMsg;
+                msg += '<pre><div style="color:red;">There was an error executing <strong>' + opTitle + '</strong> operation</div><div>' +
+                    generateCollapsiblePanel(index, linkTitle, detailMsg) + '</div></pre>';
+            } else {
+                var validTxt = "";
+                if (!isSatisfiable) {
+                    validTxt += '<strong style="color:green;">SATURATED</strong>';
+                } else {
+                    validTxt += '<strong style="color:red;">NOT SATURATED</strong>';
+                }
+                msg += '<pre><div>The Compensable Function is ' + validTxt + '</div><div>' +
+                    generateCollapsiblePanel(index, linkTitle, stdout + "\n" + document) + '</div></pre>';
+
+            }
+
+            if (callback) {
+                callback(err, stdout, stderr, isSatisfiable, document);
+            } else {
+                res.send(new responseModel('OK', msg, data, null));
+            }
+
         });
 
     },
-    checkGCC: function (res, data) {
+    mapCCG: function (res, data, callback) {
 
         let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
-        analyzer.isSatisfiableGCC(function (err, stdout, stderr, isSatisfiable, document) {
-            res.send(new responseModel('OK', cspResponse(err, stdout, "\"Guarantee Consistency Constraint\" (GCC)", isSatisfiable, document), data, null));
+        analyzer.isSatisfiableCSC(function (err, stdout, stderr, isSatisfiable, document) {
+
+            var msg = "";
+            let index = Math.round(Math.random() * 1000);
+            let linkTitle = "CSP mapping";
+            let opTitle = "Compensable Guarantee";
+
+            if (err) {
+                let errMsg = err && typeof err === "object" && typeof err.message ? err.message : err;
+                let detailMsg = document ? document : errMsg;
+                msg += '<pre><div style="color:red;">There was an error executing <strong>' + opTitle + '</strong> operation</div><div>' +
+                    generateCollapsiblePanel(index, linkTitle, detailMsg) + '</div></pre>';
+            } else {
+                var validTxt = "";
+                if (!isSatisfiable) {
+                    validTxt += '<strong style="color:green;">CONSISTENT</strong>';
+                } else {
+                    validTxt += '<strong style="color:red;">NOT CONSISTENT</strong>';
+                }
+                msg += '<pre><div>The Compensable Guarantee is ' + validTxt + '</div><div>' +
+                    generateCollapsiblePanel(index, linkTitle, stdout + "\n" + document) + '</div></pre>';
+
+            }
+
+            if (callback) {
+                callback(err, stdout, stderr, isSatisfiable, document);
+            } else {
+                res.send(new responseModel('OK', msg, data, null));
+            }
+
         });
 
     },
-    checkOGT: function (res, data) {
+    mapThGtor: function (res, data) {
 
-        let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
+        const agreement = yaml.safeLoad(data[0].content, 'utf8');
+        let analyzer = _initAnalyzer(agreement);
+
         analyzer.isSatisfiableOGT(function (err, stdout, stderr, isSatisfiable, document) {
-            res.send(new responseModel('OK', cspResponse(err, stdout, "\"Optimal Guarantor Threshold\" (OGT)", isSatisfiable, document), data, null));
-        });
-    },
-    checkOBT: function (res, data) {
 
-        let analyzer = _initAnalyzer(yaml.safeLoad(data[0].content, 'utf8'));
+            var msg = "";
+            let index = Math.round(Math.random() * 1000);
+            let linkTitle = "CSP mapping";
+            let opTitle = "Optimal Guarantor Threshold";
+
+            if (err) {
+                let errMsg = err && typeof err === "object" && typeof err.message ? err.message : err;
+                let detailMsg = document ? document : errMsg;
+                msg += '<pre><div style="color:red;">There was an error executing <strong>' + opTitle + '</strong> operation</div><div>' +
+                    generateCollapsiblePanel(index, linkTitle, detailMsg) + '</div></pre>';
+            } else {
+
+                let cspResults = extractCSPResults(stdout);
+                let sloExpressions = getSlosFromAgreement(agreement);
+
+                let sloResult = sloExpressions.map((expr) => {
+                    var s = "";
+                    let sloVariable = expr.match(/(\b(?!true)(?!false)(?!xor)(?!not)(?!\d))(\w+)/gi)[0];
+                    let cspResult = cspResults.filter(r => r.name === sloVariable);
+                    if (cspResult && cspResult.length > 0) {
+                        s += cspResult[0].name + ': ' + cspResult[0].value;
+                    }
+                    return s;
+                }).filter(s => s !== "").join("\n");
+
+                var validTxt = "";
+
+                if (isSatisfiable) {
+                    validTxt += "Optimal Guarantor Threshold for \n<strong style='color:green;'>" + sloResult + "</strong>";
+                } else {
+                    validTxt += "<span style='color:red;'>No Optimal Guarantor Threshold found</span>";
+                }
+
+                msg += '<pre><div>' + validTxt + '</div><div>' +
+                    generateCollapsiblePanel(index, linkTitle, stdout + "\n" + document) + '</div></pre>';
+
+
+            }
+
+            res.send(new responseModel('OK', msg, data, null));
+
+        });
+
+    },
+    mapThBen: function (res, data) {
+
+        const agreement = yaml.safeLoad(data[0].content, 'utf8');
+        let analyzer = _initAnalyzer(agreement);
+
         analyzer.isSatisfiableOBT(function (err, stdout, stderr, isSatisfiable, document) {
-            res.send(new responseModel('OK', cspResponse(err, stdout, "\"Optimal Beneficiary Threshold\" (OBT)", isSatisfiable, document), data, null));
+
+            var msg = "";
+            let index = Math.round(Math.random() * 1000);
+            let linkTitle = "CSP mapping";
+            let opTitle = "Optimal Beneficiary Threshold";
+
+            if (err) {
+                let errMsg = err && typeof err === "object" && typeof err.message ? err.message : err;
+                let detailMsg = document ? document : errMsg;
+                msg += '<pre><div style="color:red;">There was an error executing <strong>' + opTitle + '</strong> operation</div><div>' +
+                    generateCollapsiblePanel(index, linkTitle, detailMsg) + '</div></pre>';
+            } else {
+
+                let cspResults = extractCSPResults(stdout);
+                let sloExpressions = getSlosFromAgreement(agreement);
+
+                let sloResult = sloExpressions.map((expr) => {
+                    var s = "";
+                    let sloVariable = expr.match(/(\b(?!true)(?!false)(?!xor)(?!not)(?!\d))(\w+)/gi)[0];
+                    let cspResult = cspResults.filter(r => r.name === sloVariable);
+                    if (cspResult && cspResult.length > 0) {
+                        s += cspResult[0].name + ': ' + cspResult[0].value;
+                    }
+                    return s;
+                }).filter(s => s !== "").join("\n");
+
+                var validTxt = "";
+
+                if (isSatisfiable) {
+                    validTxt += "Optimal Beneficiary Threshold for \n<strong style='color:green;'>" + sloResult + "</strong>";
+                } else {
+                    validTxt += "<span color='color:red;'>No Optimal Beneficiary Threshold found</span>";
+                }
+
+                msg += '<pre><div>' + validTxt + '</div><div>' +
+                    generateCollapsiblePanel(index, linkTitle, stdout + "\n" + document) + '</div></pre>';
+
+
+            }
+
+            res.send(new responseModel('OK', msg, data, null));
+
         });
 
     },
@@ -359,7 +590,7 @@ function annotation(type, row, column, text) {
 function cspResponse(err, stdout, opTitle, isSatisfiable, document) {
 
     let index = Math.round(Math.random() * 1000);
-    let linkTitle = "details of execution";
+    let linkTitle = "CSP mapping";
 
     if (!err) {
         return '<pre><div>The result of operation ' + opTitle + ' in the current document is: <strong>' + String(isSatisfiable).toUpperCase() +
@@ -489,4 +720,43 @@ let _checkConsistency = (model, res) => {
 
     });
 
+};
+
+/**
+ * Get CSP result in a structured format.
+ * @param {*} stdout String that contains the execution result of the CSP.
+ */
+let extractCSPResults = (stdout) => {
+    let cspResults = stdout.match(/(\b(?!true)(?!false)(?!xor)(?!not)(?!\d))(\w+)\s+\=\s+([0-9\.]+)/gi);
+    return cspResults.map(r => {
+        let split = r.split("=");
+        return {
+            name: split[0].trim(),
+            value: split[1].trim()
+        };
+    });
+};
+
+/**
+ * Get SLO expressions from agreement.
+ * @param {object} agreement Agreement following iAgree specification.
+ * @return {array} SLO expressions.
+ */
+let getSlosFromAgreement = (agreement) => {
+    return agreement.terms.guarantees.reduce((acc, g) => {
+        return acc.concat(g.of.map(o => o.objective));
+    }, []);
+};
+
+/**
+ * Get error message
+ * @param {*} err 
+ */
+let getErrorMessage = (err, document, opTitle) => {
+    const linkTitle = "CSP mapping";
+    const index = Math.round(Math.random() * 1000);
+    let errMsg = err && typeof err === "object" && typeof err.message ? err.message : err;
+    let detailMsg = document ? document : errMsg;
+    return '<pre><div style="color:red;">There was an error executing ' + opTitle + ' operation</div><div>' +
+        generateCollapsiblePanel(index, linkTitle, detailMsg) + '</div></pre>';
 };
