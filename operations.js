@@ -21,7 +21,7 @@ const SAMPLE_AGREEMENT_TITLE = "Sample_agreement_title";
 
 module.exports = {
     mapCompensations: function (res, data) {
-        this.mapCompensations(res, data);
+        this.mapVCG(res, data);
     },
     mapVCG: function (res, data) {
 
