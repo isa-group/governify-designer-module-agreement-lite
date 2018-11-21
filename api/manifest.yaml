@@ -132,13 +132,13 @@ models:
         editorThemeId: ace/theme/json
         editorThemeURI: theme-json.js
         syntaxCheck: true
-    operations:
-      - id: generateGovernify
-        name: Generate Governify
-        description: Generate Governify model.
-        type: createFile
-        config:
-          ext: at
+    operations: []
+      # - id: generateGovernify
+      #   name: Generate Governify
+      #   description: Generate Governify model.
+      #   type: createFile
+      #   config:
+      #     ext: at
   - id: oai-agreement
     extension: oai-ag
     name: OAI Agreement
