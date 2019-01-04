@@ -1,0 +1,12 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.13.3
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:extend:20180424':
+    - governify-csp-tools > swagger-tools > superagent > extend:
+        patched: '2019-01-04T23:28:34.159Z'
+    - governify-agreement-analyzer > swagger-tools > superagent > extend:
+        patched: '2019-01-04T23:28:34.159Z'
+    - governify-agreement-analyzer > governify-csp-tools > swagger-tools > superagent > extend:
+        patched: '2019-01-04T23:28:34.159Z'
