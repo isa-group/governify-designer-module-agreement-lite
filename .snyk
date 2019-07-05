@@ -1,0 +1,24 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.13.5
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-450202:
+    - swagger-tools > lodash:
+        patched: '2019-07-05T22:15:17.252Z'
+    - swagger-tools > async > lodash:
+        patched: '2019-07-05T22:15:17.252Z'
+    - governify-agreement-manager > json-schema-deref > lodash:
+        patched: '2019-07-05T22:15:17.252Z'
+    - swagger-tools > json-refs > lodash:
+        patched: '2019-07-05T22:15:17.252Z'
+    - swagger-tools > json-refs > graphlib > lodash:
+        patched: '2019-07-05T22:15:17.252Z'
+    - governify-agreement-manager > json-schema-deref > async > lodash:
+        patched: '2019-07-05T22:15:17.252Z'
+    - governify-csp-tools > swagger-tools > json-refs > graphlib > lodash:
+        patched: '2019-07-05T22:15:17.252Z'
+    - governify-agreement-analyzer > swagger-tools > json-refs > graphlib > lodash:
+        patched: '2019-07-05T22:15:17.252Z'
+    - governify-agreement-analyzer > governify-csp-tools > swagger-tools > json-refs > graphlib > lodash:
+        patched: '2019-07-05T22:15:17.252Z'
